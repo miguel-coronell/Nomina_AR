@@ -1,0 +1,45 @@
+/* Diálogo de compartir (WhatsApp / correo) */
+.share { display: grid; gap: 1rem; }
+.share-doc { display: flex; align-items: center; gap: .9rem; padding: .9rem 1rem; border-radius: 16px; background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #fff; }
+.share-doc-ico { width: 44px; height: 44px; flex: none; border-radius: 13px; display: grid; place-items: center; background: rgba(255, 255, 255, .14); font-size: 1.15rem; }
+.share-doc-txt { min-width: 0; flex: 1; }
+.share-doc-txt small, .share-doc-amt small { display: block; color: #a9c0ee; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.share-doc-txt strong { display: block; font-size: 1.02rem; overflow-wrap: anywhere; line-height: 1.25; }
+.share-doc-amt { text-align: right; flex: none; }
+.share-doc-amt b { font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.share-channels { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; padding: .3rem; background: #e8edf5; border-radius: 14px; }
+.share-ch { display: flex; align-items: center; justify-content: center; gap: .55rem; padding: .7rem; border: 0; border-radius: 11px; background: transparent; font-weight: 700; color: var(--text-2); transition: .15s; min-height: 44px; }
+.share-ch i { font-size: 1.15rem; }
+.share-ch[data-ch="wa"].active { background: #fff; color: var(--wa-dark); box-shadow: 0 1px 6px rgba(15, 23, 42, .15); }
+.share-ch[data-ch="mail"].active { background: #fff; color: var(--primary); box-shadow: 0 1px 6px rgba(15, 23, 42, .15); }
+.share .hint { display: flex; gap: .4rem; align-items: flex-start; line-height: 1.4; }
+
+.share-pdf { border: 1.5px dashed var(--border-strong); border-radius: 14px; padding: .85rem 1rem; display: grid; gap: .7rem; background: var(--surface-2); }
+.share-pdf-head { display: flex; gap: .7rem; align-items: flex-start; }
+.share-pdf-head > i { color: var(--primary); margin-top: .2rem; }
+.share-pdf-head strong { display: block; font-size: .9rem; }
+.share-pdf-head small { color: var(--text-2); font-size: .78rem; line-height: 1.35; display: block; }
+.share-pdf-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+.share-list { display: grid; gap: .5rem; margin-top: .9rem; }
+.share-row { display: flex; align-items: center; gap: .75rem; padding: .65rem .75rem; border: 1px solid var(--border); border-radius: 14px; background: #fff; transition: .15s; }
+.share-row.done { background: #f3fbf6; border-color: #bfe9d4; }
+.share-row .avatar { width: 40px; height: 40px; font-size: .8rem; }
+.share-row-txt { min-width: 0; flex: 1; }
+.share-row-txt strong { display: block; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.share-row-txt small { color: var(--text-2); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.share-row-btns { display: flex; gap: .15rem; flex: none; }
+.share-row-btns .icon-btn { width: 40px; height: 40px; }
+
+@media (max-width: 640px) {
+  .share-doc { flex-wrap: wrap; }
+  .share-doc-amt { width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid rgba(255, 255, 255, .15); padding-top: .55rem; }
+  .share-pdf-actions .btn { flex: 1; }
+}
+
+.share .field .hint.ok-text { color: var(--success); }
+.share .field .hint.warn-text { color: #b45309; }
+.share { grid-template-columns: minmax(0, 1fr); }
+.share > * { min-width: 0; }
+.share-list { grid-template-columns: minmax(0, 1fr); } .share-row { min-width: 0; }

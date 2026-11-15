@@ -1,0 +1,29 @@
+.field { display: flex; flex-direction: column; gap: .35rem; min-width: 0; }
+.field > label, .label { font-size: .8rem; font-weight: 700; color: var(--text-2); }
+.field .hint { font-size: .76rem; color: var(--text-3); }
+.field .error { font-size: .78rem; color: var(--danger); font-weight: 600; }
+.input, .select, .textarea { width: 100%; padding: .72rem .9rem; min-height: 44px; border: 1.5px solid var(--border); border-radius: 12px; background: #fff; transition: border-color .2s, box-shadow .2s; }
+.textarea { resize: vertical; min-height: 84px; line-height: 1.5; }
+.input:focus, .select:focus, .textarea:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(14, 165, 233, .15); }
+.field.has-error .input, .field.has-error .select { border-color: var(--danger); }
+.input-icon { position: relative; }
+.input-icon > i.lead { position: absolute; left: .95rem; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
+.input-icon > .input { padding-left: 2.6rem; }
+.input-icon > .toggle { position: absolute; right: .35rem; top: 50%; transform: translateY(-50%); }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.1rem; }
+.form-grid .full { grid-column: 1 / -1; }
+.check { display: flex; align-items: flex-start; gap: .65rem; padding: .7rem .85rem; border: 1.5px solid var(--border); border-radius: 12px; background: #fff; cursor: pointer; font-size: .88rem; }
+.check input { margin-top: .2rem; width: 17px; height: 17px; accent-color: var(--primary); flex: none; }
+.check small { display: block; color: var(--text-3); font-size: .76rem; }
+.check.disabled { opacity: .55; cursor: not-allowed; background: #f8fafc; }
+.alert { padding: .8rem 1rem; border-radius: 12px; font-size: .88rem; display: flex; gap: .65rem; align-items: flex-start; }
+.alert i { margin-top: .2rem; }
+.alert-error { background: var(--danger-bg); color: #991b1b; }
+.alert-success { background: var(--success-bg); color: #166534; }
+.alert-warning { background: var(--warning-bg); color: #92400e; }
+.alert-info { background: var(--primary-50); color: #1e40af; }
+.alert ul { margin: .25rem 0 0 1rem; list-style: disc; }
+@media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+
+@media (max-width: 760px) { .input, .select, .textarea { font-size: 16px; } /* evita el zoom automático de iOS */ .check { padding: .8rem .9rem; } }
+.warn-text { color: var(--warning); font-weight: 700; }

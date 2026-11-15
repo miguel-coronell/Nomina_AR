@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArgenLiquid PRO | Liquidaciones laborales en Argentina</title>
+  <meta name="description" content="Calculá indemnizaciones, preaviso, SAC y vacaciones según la LCT 20.744 y la Ley 27.802. Simulador gratis para abogados, contadores y RR.HH.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="src/styles/bundles/site.css">
+</head>
+<body class="site">
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="#inicio"><span class="brand-mark"><i class="fas fa-shield-halved"></i></span><span>ArgenLiquid <small>PRO</small></span></a>
+      <nav class="site-nav" aria-label="Principal">
+        <a href="#inicio">Inicio</a><a href="#servicios">Servicios</a><a href="#simulador">Simulador</a><a href="#normativa">Normativa</a><a href="#app">App móvil</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn btn-outline btn-sm" id="btn-login" href="pages/login.html">Acceso clientes</a>
+        <a class="btn btn-primary btn-sm" href="pages/planes.html">Obtener acceso PRO</a>
+        <button class="icon-btn hamburger" id="burger" aria-label="Menú"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav">
+      <a href="#servicios">Servicios</a><a href="#simulador">Simulador</a><a href="#normativa">Normativa</a><a href="#app">App móvil</a><a href="pages/login.html">Acceso clientes</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="container">
+        <div>
+          <span class="pill"><i class="fas fa-bolt"></i> Actualizado a la Ley 27.802 de Modernización Laboral</span>
+          <h1>Liquidá con <span>seguridad jurídica</span></h1>
+          <p class="lead">El motor de cálculo más claro para indemnizaciones, preavisos, SAC y vacaciones. Pensado para abogados, contadores y equipos de RR.HH.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary btn-lg" href="#simulador">Probar el simulador gratis</a>
+            <a class="btn btn-outline btn-lg" href="pages/login.html?modo=registro">Crear cuenta</a>
+          </div>
+          <div class="hero-stats" id="hero-stats"></div>
+        </div>
+        <div class="mock" aria-hidden="true">
+          <div class="mock-top"><i></i><i></i><i></i></div>
+          <small>Resultado estimado</small>
+          <div class="amount">$ 4.850.200,00</div>
+          <div class="row"><span>Indemnización Art. 245</span><b>$ 3.500.000</b></div>
+          <div class="row"><span>Preaviso + SAC</span><b>$ 1.083.333</b></div>
+          <div class="row"><span>Integración mes</span><b>$ 266.867</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="servicios">
+      <div class="container">
+        <div class="section-head"><span class="eyebrow">Servicios</span><h2>Soluciones para cada necesidad</h2><p>Diseñado para trabajadores que buscan transparencia y para profesionales que necesitan precisión.</p></div>
+        <div class="features">
+          <div class="feature"><div class="ico"><i class="fas fa-scale-balanced"></i></div><h3>Motor de cálculo 2026</h3><p>Art. 245 con tope de convenio y fallo Vizzoti, preaviso, integración, SAC y vacaciones proporcionales.</p></div>
+          <div class="feature"><div class="ico"><i class="fas fa-file-pdf"></i></div><h3>Recibos profesionales</h3><p>Exportá cada liquidación en PDF con desglose, base legal y monto en letras.</p></div>
+          <div class="feature"><div class="ico"><i class="fas fa-clock-rotate-left"></i></div><h3>Casos históricos</h3><p>Aplica el marco legal según la fecha de egreso, incluyendo multas de casos anteriores a la Ley Bases.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section simulator-bg" id="simulador">
+      <div class="container">
+        <div class="section-head"><span class="eyebrow">Simulador gratuito</span><h2>Calculá una liquidación en 3 pasos</h2><p>Sin registrarte. Para guardar, gestionar empleados y generar recibos, creá tu cuenta.</p></div>
+        <div class="sim-card" id="quick-sim"></div>
+      </div>
+    </section>
+
+    <section class="section" id="app">
+      <div class="container">
+        <div class="promo-app">
+          <div>
+            <span class="pill">Portable</span>
+            <h2 style="margin-top:1rem">Llevá ArgenLiquid en tu bolsillo</h2>
+            <p>Accedé desde cualquier dispositivo con tu cuenta. Tus liquidaciones se sincronizan en la nube.</p>
+            <div class="store-badges">
+              <span class="store-badge"><i class="fab fa-google-play"></i><span>Próximamente en<b>Google Play</b></span></span>
+              <span class="store-badge"><i class="fab fa-apple"></i><span>Próximamente en<b>App Store</b></span></span>
+            </div>
+          </div>
+          <div class="phone" aria-hidden="true"><small>Neto</small><b>$ 4.850.200</b><span></span><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section simulator-bg" id="normativa">
+      <div class="container">
+        <div class="section-head"><span class="eyebrow">Legal insight</span><h2>Base normativa actualizada</h2></div>
+        <div class="law-grid">
+          <article class="law"><span class="tag">Art. 245</span><h3>Indemnización por antigüedad</h3><p>Un mes de remuneración por año de servicio o fracción mayor a tres meses. La Ley 27.802 reformó su base de cálculo.</p></article>
+          <article class="law"><span class="tag">Arts. 231 y 232</span><h3>Preaviso</h3><p>1 mes hasta 5 años de antigüedad y 2 meses por encima. Sin preaviso durante el período de prueba.</p></article>
+          <article class="law"><span class="tag">Ley 27.802</span><h3>Fondo de Asistencia Laboral</h3><p>Aportes patronales de entre 1% y 2,5% que pueden destinarse a afrontar indemnizaciones.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="#inicio"><span class="brand-mark"><i class="fas fa-shield-halved"></i></span><span>ArgenLiquid <small>PRO</small></span></a><p style="margin-top:1rem;max-width:22rem;font-size:.9rem">Software de liquidación laboral para Argentina. Estimaciones orientativas: verificá siempre con un profesional matriculado.</p></div>
+        <div><h5>Sistema</h5><ul><li><a href="#simulador">Simulador</a></li><li><a href="pages/planes.html">Planes</a></li><li><a href="pages/login.html">Acceso clientes</a></li></ul></div>
+        <div><h5>Contacto</h5><ul><li><a href="#" id="wa-link" target="_blank" rel="noopener">WhatsApp</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© <span id="year"></span> ArgenLiquid PRO. Todos los derechos reservados.</span><span>Marco legal revisado: <span id="rev"></span></span></div>
+    </div>
+  </footer>
+
+  <script type="module" src="src/features/landing/landing.js"></script>
+</body>
+</html>

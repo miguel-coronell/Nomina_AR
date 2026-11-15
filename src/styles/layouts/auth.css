@@ -1,0 +1,69 @@
+/* LOGIN / REGISTRO — panel promocional a la izquierda, formulario a la derecha */
+.auth-layout { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); background: var(--navy); }
+
+.auth-promo { position: relative; overflow: hidden; color: #fff; padding: 2.5rem clamp(1.5rem, 4vw, 4rem); display: flex; flex-direction: column; justify-content: space-between; gap: 2rem; background: linear-gradient(160deg, #0b1b3f 0%, #0f172a 55%, #0a2a5e 100%); }
+.auth-promo .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .35; animation: blob 18s infinite alternate ease-in-out; pointer-events: none; }
+.auth-promo .blob.b1 { width: 420px; height: 420px; background: var(--primary); top: -120px; left: -100px; }
+.auth-promo .blob.b2 { width: 360px; height: 360px; background: #6366f1; bottom: -120px; right: -60px; animation-delay: -6s; }
+.auth-promo .blob.b3 { width: 260px; height: 260px; background: var(--accent); top: 45%; left: 40%; opacity: .2; animation-delay: -11s; }
+@keyframes blob { to { transform: translate(40px, 30px) scale(1.15); } }
+.auth-promo > * { position: relative; z-index: 1; }
+
+
+.promo-body h1 { font-size: clamp(2rem, 3.6vw, 3.1rem); line-height: 1.1; font-weight: 800; letter-spacing: -.02em; }
+.promo-body h1 span { background: linear-gradient(90deg, #7dd3fc, #38bdf8, #a5b4fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.promo-body > p { margin-top: 1rem; color: #cbd5e1; font-size: 1.05rem; max-width: 34rem; }
+.promo-features { margin-top: 1.8rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; max-width: 40rem; }
+.promo-feature { display: flex; gap: .8rem; align-items: flex-start; padding: .9rem; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .1); backdrop-filter: blur(6px); }
+.promo-feature i { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 10px; background: rgba(56, 189, 248, .18); color: #7dd3fc; }
+.promo-feature strong { display: block; font-size: .92rem; }
+.promo-feature span { font-size: .8rem; color: #94a3b8; line-height: 1.4; display: block; margin-top: .1rem; }
+
+.promo-demo { margin-top: 1.8rem; display: inline-flex; align-items: center; gap: 1rem; padding: 1rem 1.3rem; border-radius: 16px; background: rgba(255, 255, 255, .95); color: var(--navy); box-shadow: var(--shadow-lg); animation: floaty 5s ease-in-out infinite; }
+.promo-demo .ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--primary-50); color: var(--primary); }
+.promo-demo small { color: var(--text-2); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; display: block; }
+.promo-demo strong { font-size: 1.45rem; font-weight: 800; }
+.promo-demo .tag { font-size: .7rem; background: var(--success-bg); color: #166534; padding: .15rem .5rem; border-radius: 99px; font-weight: 800; margin-left: .4rem; vertical-align: middle; }
+@keyframes floaty { 50% { transform: translateY(-8px); } }
+
+.promo-stats { display: flex; gap: 2.2rem; flex-wrap: wrap; }
+.promo-stats strong { display: block; font-size: 1.5rem; font-weight: 800; }
+.promo-stats span { color: #94a3b8; font-size: .8rem; }
+.promo-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: .8rem; color: #94a3b8; }
+.promo-foot a { color: #7dd3fc; }
+
+.auth-panel { background: #f8fafc; display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; }
+.auth-card { width: 100%; max-width: 440px; }
+.auth-card h2 { font-size: 1.6rem; font-weight: 800; letter-spacing: -.01em; }
+.auth-card .sub { color: var(--text-2); margin: .3rem 0 1.4rem; }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: .3rem; background: #e2e8f0; border-radius: 14px; margin-bottom: 1.4rem; }
+.auth-tabs button { border: 0; background: transparent; padding: .65rem; border-radius: 11px; font-weight: 700; color: var(--text-2); transition: .2s; }
+.auth-tabs button[aria-selected="true"] { background: #fff; color: var(--primary); box-shadow: 0 2px 8px rgba(15, 23, 42, .12); }
+.auth-form { display: grid; gap: 1rem; }
+.divider { display: flex; align-items: center; gap: .8rem; color: var(--text-3); font-size: .78rem; margin: 1.1rem 0; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.auth-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: .85rem; flex-wrap: wrap; }
+.auth-row label { display: inline-flex; gap: .5rem; align-items: center; cursor: pointer; }
+.auth-row input { accent-color: var(--primary); width: 16px; height: 16px; }
+.link-btn { background: none; border: 0; padding: 0; color: var(--primary); font-weight: 700; font-size: inherit; }
+.link-btn:hover { text-decoration: underline; }
+.strength { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: .45rem; }
+.strength i { height: 4px; border-radius: 4px; background: #e2e8f0; transition: background .2s; }
+.strength[data-level="1"] i:nth-child(-n+1) { background: #ef4444; }
+.strength[data-level="2"] i:nth-child(-n+2) { background: #f59e0b; }
+.strength[data-level="3"] i:nth-child(-n+3) { background: #84cc16; }
+.strength[data-level="4"] i { background: #16a34a; }
+.auth-legal { text-align: center; font-size: .78rem; color: var(--text-3); margin-top: 1.4rem; }
+.demo-box { margin-bottom: 1.2rem; }
+.demo-box .alert { flex-direction: column; gap: .5rem; }
+.back-home { display: inline-flex; align-items: center; gap: .4rem; color: var(--text-2); font-size: .85rem; margin-bottom: 1.2rem; }
+
+@media (max-width: 960px) {
+  .auth-layout { grid-template-columns: 1fr; }
+  .auth-promo { padding: 1.4rem 1.25rem 1.6rem; gap: 1rem; }
+  .promo-body h1 { font-size: 1.7rem; }
+  .promo-body > p, .promo-features, .promo-demo, .promo-foot { display: none; }
+  .promo-stats { gap: 1.4rem; } .promo-stats strong { font-size: 1.15rem; }
+  .auth-panel { align-items: flex-start; padding-top: 1.5rem; }
+}
+@media (min-width: 961px) and (max-height: 760px) { .promo-demo { display: none; } }

@@ -1,0 +1,14 @@
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card-header { padding: 1.05rem 1.35rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.card-header h3 { font-size: 1rem; font-weight: 800; letter-spacing: -.005em; }
+.card-body { padding: 1.35rem; }
+.card-footer { padding: .9rem 1.35rem; border-top: 1px solid var(--border); background: var(--surface-2); border-radius: 0 0 var(--radius) var(--radius); }
+.badge { display: inline-flex; align-items: center; gap: .35rem; padding: .24rem .65rem; border-radius: 999px; font-size: .72rem; font-weight: 800; letter-spacing: .01em; background: var(--primary-50); color: var(--primary); white-space: nowrap; }
+.badge-success { background: var(--success-bg); color: #166534; }
+.badge-warning { background: var(--warning-bg); color: #92400e; }
+.badge-danger { background: var(--danger-bg); color: #991b1b; }
+.badge-gray { background: #e8edf5; color: #475569; }
+.muted-text { color: var(--text-2); }
+.empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-3); }
+.empty i { font-size: 2.1rem; margin-bottom: .7rem; display: block; opacity: .65; }
+.empty h4 { color: var(--text-2); margin-bottom: .25rem; }
