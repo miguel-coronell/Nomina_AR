@@ -67,3 +67,25 @@
   .auth-panel { align-items: flex-start; padding-top: 1.5rem; }
 }
 @media (min-width: 961px) and (max-height: 760px) { .promo-demo { display: none; } }
+
+/* Login en blanco y azul suave (misma paleta que la página principal, ver landing-light.css) */
+.auth-layout { background: #fff; }
+.auth-promo { background: linear-gradient(165deg, #ffffff 0%, #eef5ff 55%, #dbeafe 100%); color: #12356b; border-right: 1px solid #dbeafe; }
+.auth-promo .blob { opacity: .35; }
+.auth-promo .blob.b1 { background: #93c5fd; }
+.auth-promo .blob.b2 { background: #bfdbfe; opacity: .55; }
+.auth-promo .blob.b3 { background: #7dd3fc; opacity: .3; }
+.auth-promo .brand { color: #12356b; }
+.auth-promo .brand small { background: #fff; color: #2563eb; border: 1px solid #bfdbfe; }
+.promo-body h1 { color: #0f2e63; }
+.promo-body h1 span { background: linear-gradient(90deg, #2563eb, #38a3f5); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.promo-body > p { color: #3e5a82; }
+.promo-feature { background: #fff; border: 1px solid #cfe0f7; backdrop-filter: none; box-shadow: 0 10px 24px -18px rgba(37, 99, 235, .45); }
+.promo-feature i { background: #dbeafe; color: #2563eb; }
+.promo-feature strong { color: #12356b; }
+.promo-feature span { color: #5b7498; }
+.promo-demo { background: #fff; border: 1px solid #cfe0f7; box-shadow: 0 18px 40px -24px rgba(37, 99, 235, .5); }
+.promo-stats strong { color: #0f2e63; }
+.promo-stats span, .promo-foot { color: #5b7498; }
+.promo-foot a { color: #1d4fd0; }
+.auth-panel { background: #fff; }

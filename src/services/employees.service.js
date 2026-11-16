@@ -1,4 +1,4 @@
-import { ZONAS, valorHoraEscala } from '../domain/convenios/escalas.js';
+import { ZONAS, vigenciaEscala } from '../domain/convenios/escalas.js';
 import { isValidISO, toUTC, parseISO, daysBetween } from '../core/dates.js';
 
 const COL = 'employees';
@@ -59,10 +59,11 @@ export function normalizeEmployee(d) {
     telefono: String(d.telefono || '').trim(),
     email: String(d.email || '').trim(),
   };
+  if ('foto' in d) e.foto = typeof d.foto === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(d.foto) && d.foto.length < 150_000 ? d.foto : '';
   if (e.regimen === 'pasantia') e.modalidad = 'mensual';
   if (e.modalidad === 'hora') {
     // Valor hora: el manual, o el de la escala del convenio. Sueldo = referencia mensual (200 hs) para liquidación final.
-    if (!e.valorHoraManual) e.valorHora = valorHoraEscala(e.convenio, e.categoria, e.zona) || e.valorHora;
+    if (!e.valorHoraManual) { const vg = vigenciaEscala(e.convenio, e.categoria, e.zona); if (vg) { e.valorHora = vg.valor; e.convenio = e.convenio || vg.convenio; } }
     e.sueldo = Math.round(e.valorHora * 200 * 100) / 100;
   }
   if (e.regimen === 'pasantia') { e.adicionalAntiguedadPct = 0; e.presentismoPct = 0; e.periodicidad = 'mensual'; }
@@ -112,6 +113,18 @@ export function createEmployeesService(repo) {
       return data.id ? repo.update(COL, data.id, payload) : repo.create(COL, payload);
     },
     remove: (id) => repo.remove(COL, id),
+
+    /** Eliminación masiva en tandas. Devuelve los ids eliminados y la cantidad que falló. */
+    async removeMany(ids, onProgress) {
+      const okIds = []; let failed = 0;
+      for (let i = 0; i < ids.length; i += 8) {
+        const batch = ids.slice(i, i + 8);
+        const out = await Promise.allSettled(batch.map((id) => repo.remove(COL, id)));
+        out.forEach((r, k) => { if (r.status === 'fulfilled') okIds.push(batch[k]); else failed += 1; });
+        onProgress?.(Math.min(i + 8, ids.length), ids.length);
+      }
+      return { okIds, failed };
+    },
 
 
     /**

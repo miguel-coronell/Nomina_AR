@@ -15,9 +15,10 @@ import receipts from './receipts/index.js';
 import history from './history/index.js';
 import legal from './legal/index.js';
 import settings from './settings/index.js';
+import escalas from './escalas/index.js';
 
 import payments from './payments/index.js';
 import reports from './reports/index.js';
 
 // Orden = orden del menú lateral
-export const MODULES = [dashboard, employees, payroll, payments, reports, simulator, receipts, history, legal, settings];
+export const MODULES = [dashboard, employees, payroll, payments, reports, simulator, receipts, history, legal, escalas, settings];

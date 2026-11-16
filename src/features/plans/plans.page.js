@@ -4,11 +4,12 @@ import { money } from '../../core/format.js';
 import { PLANS, PLAN_COMPARISON } from '../../config/plans.config.js';
 import { APP, ROUTES } from '../../config/app.config.js';
 
-$('#year').textContent = new Date().getFullYear();
+import { mountFooter } from '../shared/site-footer.js';
+mountFooter();
 
 const cta = (p) => {
   if (p.id === 'free') return html`<a class="btn btn-outline btn-block" href="${ROUTES.login}?modo=registro">Usar simulador</a>`;
-  const msg = encodeURIComponent(`Hola, me interesa el plan ${p.name} de ArgenLiquid PRO.`);
+  const msg = encodeURIComponent(`Hola, me interesa el plan ${p.name} de Nomina AR PRO.`);
   return html`<a class="btn ${p.highlight ? 'btn-primary' : 'btn-secondary'} btn-block" href="https://wa.me/${APP.whatsapp}?text=${msg}" target="_blank" rel="noopener">${p.highlight ? 'Comenzar ahora PRO' : 'Contactar ventas'}</a>`;
 };
 

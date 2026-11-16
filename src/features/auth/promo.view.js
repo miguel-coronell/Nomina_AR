@@ -10,7 +10,7 @@ export function promoView() {
     <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 
     <a class="brand" href="${ROUTES.home}">
-      <span class="brand-mark"><i class="fas fa-shield-halved"></i></span>
+      <span class="brand-mark"><img src="${new URL('../../../assets/logo.svg', import.meta.url).href}" alt="" width="40" height="40"></span>
       <span>${APP.name} <small>${APP.edition}</small></span>
     </a>
 

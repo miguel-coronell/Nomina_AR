@@ -7,7 +7,7 @@ export function deducciones(remunerativo, settings) {
   const base = tope > 0 ? Math.min(remunerativo, tope) : remunerativo;
   const filas = [
     ['jubilacion', 'Jubilación (SIPA)', a.jubilacion],
-    ['pami', 'Ley 19.032 (INSSJP)', a.pami],
+    ['pami', 'Ley 23.568 (INSSJP)', a.pami],
     ['obra_social', 'Obra social', a.obraSocial],
     ['sindicato', 'Cuota sindical', a.sindicato],
   ];

@@ -2,13 +2,16 @@ import { html } from '../../../../core/html.js';
 import { $, $$, on, debounce } from '../../../../core/dom.js';
 import { money, dateAR } from '../../../../core/format.js';
 import { matcher } from '../../../../core/search.js';
+import { validarCuit } from '../../../../core/cuit.js';
 import { createPager } from '../../../../core/ui/pager.js';
 import { statValue } from '../../../../core/ui/stat.js';
 import { dcard, avatarLead, iconLead, emptyCard } from '../../../../core/ui/cards.js';
 import { sharePayslip, shareBatch, shareBtn } from '../../shared/share.dialog.js';
+import { elegirFormatoRecibo, estConFormato } from '../../shared/recibo-formato.dialog.js';
 import { tipoLabel } from '../../../../domain/payroll/periodos.js';
+import { vigenciaEscala } from '../../../../domain/convenios/escalas.js';
 import { downloadPayslipsPDF, downloadPayrollSummaryPDF } from '../../../../services/pdf/index.js';
-import { newRunDialog, novedadesDialog, pagoDialog, payslipDialog, printAllPayslips, metaDialog } from './dialogs.js';
+import { newRunDialog, novedadesDialog, pagoDialog, payslipDialog, printAllPayslips, metaDialog, vigenciaDialog } from './dialogs.js';
 import { exportNominaXLSX, exportPagosCSV } from './export.js';
 import { medioLabel } from './payslip.view.js';
 import { mountQuickCalc } from './quick.js';
@@ -118,9 +121,13 @@ async function mountDetail(el, ctx, id) {
   /** Datos que completan el recibo (art. 140 LCT). Son avisos: no impiden liquidar ni pagar. */
   const faltantes = () => {
     const e = est(), out = [];
+    if (e.cuit && !validarCuit(e.cuit)) out.push({ txt: 'El CUIT del empleador no es válido (11 dígitos con dígito verificador)', href: '#/configuracion', cta: 'Corregir en Configuración' });
     if (!e.razonSocial || !e.cuit || !e.domicilio) out.push({ txt: `Datos del empleador (${[!e.razonSocial && 'razón social', !e.cuit && 'CUIT', !e.domicilio && 'domicilio'].filter(Boolean).join(', ')})`, href: '#/configuracion', cta: 'Completar en Configuración' });
     const sinCuil = run.lines.filter((l) => !l.cuil).length;
     if (sinCuil) out.push({ txt: `${sinCuil} empleado(s) sin CUIL`, href: '#/empleados', cta: 'Completar en Empleados' });
+    // Personal por hora que NO cobra según la escala elegida: sin categoría, categoría sin valor en la escala o valor cargado a mano en la ficha.
+    const fuera = run.lines.filter((l) => l.snap.modalidad === 'hora' && vigenciaEscala(l.convenio, l.categoria, l.snap.zona || 'A', run.vigencia || run.desde)?.valor !== l.snap.valorHora);
+    if (fuera.length) out.push({ txt: `${fuera.length} empleado(s) por hora cobran con el valor hora de su ficha y no con la escala (${fuera.slice(0, 3).map((l) => `${l.nombre}${l.categoria ? '' : ': sin categoría'}`).join('; ')}${fuera.length > 3 ? '…' : ''}). Completá la categoría y destildá «Cargar el valor hora a mano»`, href: '#/empleados', cta: 'Revisar en Empleados' });
     if (!run.deposito?.periodo) out.push({ txt: 'Último depósito de aportes (período, fecha y banco)', action: 'meta', cta: 'Completar acá' });
     return out;
   };
@@ -176,9 +183,10 @@ async function mountDetail(el, ctx, id) {
       <div class="page-head">
         <div><a class="back-home" href="#/nomina"><i class="fas fa-arrow-left"></i> Todas las nóminas</a>
           <h2>${run.label} ${estadoBadge(run)}</h2>
-          <p>${tipoLabel(run.tipo)} · ${dateAR(run.desde)} al ${dateAR(run.hasta)} · ${run.fechaPago ? 'Pago previsto ' + dateAR(run.fechaPago) : 'sin fecha de pago'}</p></div>
+          <p>${tipoLabel(run.tipo)} · ${dateAR(run.desde)} al ${dateAR(run.hasta)} · ${run.fechaPago ? 'Pago previsto ' + dateAR(run.fechaPago) : 'sin fecha de pago'} · ${run.vigencia ? 'Escala vigente desde ' + dateAR(run.vigencia) : 'Escala según el período'}</p></div>
         <div class="page-actions">
-          ${b ? html`<button class="btn btn-outline" data-action="refresh"><i class="fas fa-rotate"></i> Actualizar fichas</button>
+          ${b ? html`<button class="btn btn-outline" data-action="vigencia"><i class="fas fa-table-list"></i> Escala</button>
+                     <button class="btn btn-outline" data-action="refresh"><i class="fas fa-rotate"></i> Actualizar fichas</button>
                      <button class="btn btn-primary" data-action="close"><i class="fas fa-lock"></i> Liquidar nómina</button>`
               : html`${run.estado !== 'pagada' ? html`<button class="btn btn-primary" data-action="pay-all" ${pendientes.length ? '' : 'disabled'}><i class="fas fa-money-bill-transfer"></i> Pagar pendientes (${pendientes.length})</button>` : ''}
                      <button class="btn btn-outline" data-action="reopen"><i class="fas fa-lock-open"></i> Reabrir</button>`}
@@ -239,7 +247,7 @@ async function mountDetail(el, ctx, id) {
   on(el, 'change', '[data-sel-all]', (_, c) => { pendientesVisibles().forEach((l) => (c.checked ? sel.add(l.employeeId) : sel.delete(l.employeeId))); drawRows(); });
   on(el, 'change', '[data-sel]', (_, c) => { c.checked ? sel.add(c.dataset.sel) : sel.delete(c.dataset.sel); syncSelUI(); });
   on(el, 'click', '[data-nov]', (_, b) => novedadesDialog(ctx, run, line(b.dataset.nov), (next) => { run = next; draw(); }));
-  on(el, 'click', '[data-share]', (_, b) => sharePayslip(ctx, run, line(b.dataset.share)));
+  on(el, 'click', '[data-share]', async (_, b) => { const fmt = await elegirFormatoRecibo(ctx, { accion: 'Compartir' }); if (fmt) sharePayslip(ctx, run, line(b.dataset.share), estConFormato(ctx, fmt)); });
   on(el, 'click', '[data-slip]', (_, b) => payslipDialog(ctx, run, line(b.dataset.slip)));
   on(el, 'click', '[data-pay]', (_, b) => pagoDialog(ctx, run, [b.dataset.pay], (n) => { run = n; draw(); }));
   on(el, 'click', '[data-unpay]', (_, b) => guard(() => ctx.services.payroll.revertirPago(run, [b.dataset.unpay]), 'Pago revertido'));
@@ -255,17 +263,18 @@ async function mountDetail(el, ctx, id) {
     const a = b.dataset.action;
     b.closest('details')?.removeAttribute('open');
     if (a === 'refresh') guard(async () => { run = await ctx.services.payroll.refresh(run, await ctx.services.employees.list(), ctx.state.settings); return run; }, 'Fichas actualizadas');
+    if (a === 'vigencia') vigenciaDialog(ctx, run, (v) => guard(async () => ctx.services.payroll.setVigencia(run, v, await ctx.services.employees.list(), ctx.state.settings), 'Escala aplicada y nómina recalculada'));
     if (a === 'close' && await ctx.confirmDialog({ title: 'Liquidar nómina', message: 'Se fijan los importes con los parámetros actuales y se habilitan los pagos. Podrás reabrirla mientras no haya pagos registrados.', confirmText: 'Liquidar' }))
       guard(() => ctx.services.payroll.cerrar(run, ctx.state.settings), 'Nómina liquidada');
     if (a === 'meta') metaDialog(ctx, run, (n) => { run = n; draw(); });
     if (a === 'reopen') guard(() => ctx.services.payroll.reabrir(run), 'Nómina reabierta');
     if (a === 'pay-all') pagoDialog(ctx, run, run.lines.filter((l) => l.pago.estado !== 'pagado').map((l) => l.employeeId), (n) => { run = n; sel.clear(); draw(); });
     if (a === 'pay-sel') pagoDialog(ctx, run, [...sel], (n) => { run = n; sel.clear(); draw(); });
-    if (a === 'share-all') shareBatch(ctx, run);
-    if (a === 'print-all') printAllPayslips(ctx, run);
+    if (a === 'share-all') { const fmt = await elegirFormatoRecibo(ctx, { accion: 'Compartir' }); if (fmt) shareBatch(ctx, run, estConFormato(ctx, fmt)); }
+    if (a === 'print-all') { const fmt = await elegirFormatoRecibo(ctx, { accion: 'Imprimir' }); if (fmt) printAllPayslips(ctx, run, estConFormato(ctx, fmt)); }
     if (a === 'csv') exportPagosCSV(run);
     if (a === 'xlsx') withBusy(b, () => exportNominaXLSX(run), 'No se pudo generar el Excel. Revisá tu conexión.');
-    if (a === 'pdf-all') { ctx.toast('Generando PDF…', 'info', 1500); withBusy(b, () => downloadPayslipsPDF(run, run.lines, est(), ctx.user.name), 'No se pudo generar el PDF. Revisá tu conexión.'); }
+    if (a === 'pdf-all') { const fmt = await elegirFormatoRecibo(ctx, { accion: 'Descargar', detalle: `${run.label} · ${run.lines.length} recibos` }); if (!fmt) return; ctx.toast('Generando PDF…', 'info', 1500); withBusy(b, () => downloadPayslipsPDF(run, run.lines, estConFormato(ctx, fmt), ctx.user.name), 'No se pudo generar el PDF. Revisá tu conexión.'); }
     if (a === 'pdf-sum') withBusy(b, () => downloadPayrollSummaryPDF(run, est(), ctx.user.name), 'No se pudo generar el PDF. Revisá tu conexión.');
   });
 }

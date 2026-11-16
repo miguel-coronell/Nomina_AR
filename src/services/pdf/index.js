@@ -6,6 +6,7 @@ import { loadScript } from '../../core/dom.js';
 import { buildLiquidacionPDF } from './liquidation.pdf.js';
 import { buildPayslipsPDF } from './payslip.pdf.js';
 import { buildPayrollSummaryPDF } from './payroll-summary.pdf.js';
+import { buildFichaPDF } from './employee-ficha.pdf.js';
 import { slug } from './common.js';
 
 const JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -44,4 +45,9 @@ export async function liquidacionPDFFile(rec, estudio, userName, extra = {}) {
 
 export async function payslipPDFFile(run, line, estudio, userName) {
   return asFile(buildPayslipsPDF(await lib(), run, [line], estudio, userName), `recibo_${slug(run.label)}_${slug(line.nombre)}.pdf`);
+}
+
+/** Ficha de personal: devuelve { blob, filename } para abrirla en pestaña nueva (imprimir) o descargarla. */
+export async function fichaPDFFile(data) {
+  return asFile(buildFichaPDF(await lib(), data), `ficha_${slug(data.emp.nombre || 'empleado')}.pdf`);
 }

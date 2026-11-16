@@ -10,6 +10,9 @@ import { calcAntiguedad } from '../../domain/liquidation/rules/antiguedad.js';
 import { costoLaboral, estiloGrafico } from '../../domain/payroll/costo.js';
 import { patronalesDe } from '../../domain/payroll/engine.js';
 import { APP } from '../../config/app.config.js';
+import { formatoRecibo } from '../../domain/payroll/clasico.js';
+import { buildPayslipsClasicoPDF } from './payslip-clasico.pdf.js';
+import { getFirmas } from '../firmas.service.js';
 import { C, PAGE, D, fs, fitK, t, m$, table, header, section, infoBox, netoBar, paragraph, signatures, tablaContribuciones, resumenCosto, footer } from './common.js';
 
 const MEDIOS = { transferencia: 'Transferencia bancaria', efectivo: 'Efectivo', cheque: 'Cheque', otro: 'Otro medio' };
@@ -24,7 +27,7 @@ export function depositoTexto(dep) {
 /** Dibuja UN recibo en la página actual de `doc` (usa la densidad D.k vigente). */
 function drawPayslip(doc, run, l, estudio, userName) {
   const params = run.params || {};
-  const costo = costoLaboral({ bruto: l.totals.bruto, baseAportes: l.totals.baseAportes, ausencias: l.totals.ausencias || 0, deducciones: l.deducciones, patronales: patronalesDe(l.snap, params), estilo: estiloGrafico(estudio) });
+  const costo = costoLaboral({ bruto: l.totals.bruto, baseAportes: l.totals.baseAportes, ausencias: l.totals.ausencias || 0, deducciones: l.deducciones, patronales: l.patronales || patronalesDe(l.snap, params), neto: l.totals.neto, estilo: estiloGrafico(estudio) });
   const pas = l.snap.regimen === 'pasantia';
   const pagado = l.pago.estado === 'pagado';
   const lugar = run.lugarPago || estudio.lugarPago;
@@ -75,22 +78,30 @@ function drawPayslip(doc, run, l, estudio, userName) {
   if (l.novedades?.nota) y = paragraph(doc, y, { label: 'Observaciones', text: l.novedades.nota, size: 7.5 });
 
   y = resumenCosto(doc, y + 0.5, costo) + 1;
-  signatures(doc, y, 'Firma del empleador', 'Firma del trabajador');
+  const fm = getFirmas(run, l), sg = (f) => (f ? { img: f.img, w: f.w, h: f.h } : undefined);
+  signatures(doc, y, 'Firma del empleador', 'Firma del trabajador', { left: sg(fm.empleador), right: sg(fm.empleado) });
 }
 
 /** Una página por empleado; cada recibo se comprime lo necesario para entrar completo (firma incluida). */
 export function buildPayslipsPDF(J, run, lines, estudio = {}, userName = '') {
-  const doc = new J({ unit: 'mm', format: 'a4' });
-  lines.forEach((l, i) => {
+  // Formato clásico: las pasantías no lo admiten (tienen recibo propio), así que van en hojas verticales dentro del mismo archivo.
+  const clasico = formatoRecibo(estudio) === 'clasico';
+  const esPas = (l) => l.snap.regimen === 'pasantia';
+  const normales = clasico ? lines.filter((l) => !esPas(l)) : [];
+  if (clasico && !lines.some(esPas)) return buildPayslipsClasicoPDF(J, run, lines, estudio, userName);
+  const resto = clasico ? lines.filter(esPas) : lines;
+  const doc = normales.length ? buildPayslipsClasicoPDF(J, run, normales, estudio, userName) : new J({ unit: 'mm', format: 'a4' });
+  const primeraVertical = normales.length ? doc.getNumberOfPages() + 1 : 1;
+  resto.forEach((l, i) => {
     const k = fitK(J, (tmp) => drawPayslip(tmp, run, l, estudio, userName));
     D.k = k;
-    if (i) doc.addPage();
+    if (normales.length) doc.addPage('a4', 'portrait'); else if (i) doc.addPage();
     drawPayslip(doc, run, l, estudio, userName);
     D.k = 1;
   });
-  const soloPas = lines.length > 0 && lines.every((l) => l.snap.regimen === 'pasantia');
+  const soloPas = resto.length > 0 && resto.every(esPas);
   footer(doc, soloPas
     ? `Pasantía educativa (Ley 26.427): no genera relación laboral; la asignación estímulo es no remunerativa. Se confecciona en doble ejemplar. Generado con ${APP.name} ${APP.edition}.`
-    : `Recibo de haberes conforme art. 140 LCT (texto Ley 27.802) y Decreto 407/2026. Se confecciona en doble ejemplar. Generado con ${APP.name} ${APP.edition}.`);
+    : `Recibo de haberes conforme art. 140 LCT (texto Ley 27.802) y Decreto 407/2026. Se confecciona en doble ejemplar. Generado con ${APP.name} ${APP.edition}.`, false, primeraVertical);
   return doc;
 }

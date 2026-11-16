@@ -58,7 +58,7 @@ function render(next = mode) {
   mode = next;
   const view = mode === 'register' ? registerView({ demo }) : mode === 'reset' ? resetView() : loginView({ demo });
   root.innerHTML = view;
-  document.title = { login: 'Ingresar', register: 'Crear cuenta', reset: 'Recuperar contraseña' }[mode] + ' | ArgenLiquid PRO';
+  document.title = { login: 'Ingresar', register: 'Crear cuenta', reset: 'Recuperar contraseña' }[mode] + ' | Nomina AR PRO';
 }
 
 /* ---------- acciones ---------- */

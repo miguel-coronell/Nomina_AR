@@ -8,7 +8,7 @@ import { TEMPLATE_HEADERS, TEMPLATE_EXAMPLE, TEMPLATE_HELP, parseEmployeeRows } 
 const ICON = { nuevo: ['fa-circle-plus', 'badge-success', 'Nuevo'], actualizar: ['fa-pen', 'badge', 'Actualizar'], error: ['fa-circle-xmark', 'badge-danger', 'Error'] };
 
 export function downloadTemplate() {
-  return downloadXLSX('plantilla_empleados_argenliquid.xlsx', [
+  return downloadXLSX('plantilla_empleados_nomina-ar.xlsx', [
     { name: 'Empleados', aoa: [TEMPLATE_HEADERS, TEMPLATE_EXAMPLE], widths: [26, 12, 16, 9, 20, 18, 20, 20, 34, 18, 11, 16, 14, 13, 14, 16, 16, 24, 24] },
     { name: 'Instrucciones', aoa: TEMPLATE_HELP, widths: [26, 110] },
   ]);

@@ -5,14 +5,19 @@ const DOC = 'settings';
 export const DEFAULT_SETTINGS = {
   aportes: { jubilacion: 11, pami: 3, obraSocial: 3, sindicato: 2 },
   // Contribuciones patronales (% sobre remuneraciones). Valores de REFERENCIA: verificar con tu estudio contable.
-  patronales: { sipa: 10.77, pami: 1.59, asignaciones: 4.44, fne: 0.94, obraSocial: 6, art: 2, sindical: 0, camaras: 0, otros: 0 },
-  // Personal por hora (jornaleros): conceptos propios del convenio. Valores tomados de un recibo real: VERIFICAR.
-  jornal: { osAdicPct: 0.6161, sindicatoPct: 2.5, seguroVida: 20349.7, redondeo: true },
+  // Solo para personal jornalizado (construcción): fondoCese (12 % el 1.er año) y fondoCese2 (8 % desde el 2.º, Ley 22.250 art. 15),
+  // uocra (contribución empresarial UOCRA) e ieric (aporte IERIC).
+  patronales: { sipa: 10.77, pami: 1.59, asignaciones: 4.44, fne: 0.94, obraSocial: 6, art: 2, sindical: 0, uocra: 2, fondoCese: 12, fondoCese2: 8, ieric: 1, camaras: 0, otros: 0 },
+  // Personal por hora (jornaleros). La obra social adicional NO es un parámetro: se calcula con la base mínima SIPA vigente
+  // (domain/legal/params.js). El seguro de vida es un % del básico Sereno Zona A (domain/convenios/escalas.js).
+  jornal: { sindicatoPct: 2.5, solidarioPct: 2, seguroVidaPct: 2 },
   divisorFeriado: 25,        // valor del día adicional por feriado trabajado = remuneración / divisor (mensualizados)
   topeRemunerativo: 0,       // 0 = sin tope
   periodoPruebaMeses: 0,     // 0 = automático según fecha de egreso
   // Mensajes predeterminados al compartir por WhatsApp / correo (variables: {nombre} {periodo} {neto} {fecha} {motivo} {empresa}).
   mensajes: { ...DEFAULT_TEMPLATES },
+  // Escalas y valores con fecha de vigencia que carga el usuario (pantalla «Escalas y vigencias»). Se suman a los de fábrica.
+  tablas: { convenios: {}, basesSipa: [], sereno: [] },
   estudio: { razonSocial: '', cuit: '', domicilio: '', matricula: '', lugarPago: '', logo: null, grafico: 'barra' },
 };
 

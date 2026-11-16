@@ -16,6 +16,10 @@ import { createEmployeesService } from '../../services/employees.service.js';
 import { createLiquidationsService } from '../../services/liquidations.service.js';
 import { createPayrollService } from '../../services/payroll.service.js';
 import { createSettingsService } from '../../services/settings.service.js';
+import { aplicarTablas } from '../../domain/convenios/escalas.js';
+import { aplicarBasesSipa } from '../../domain/legal/params.js';
+
+const montarTablas = (st) => { aplicarTablas(st?.tablas); aplicarBasesSipa(st?.tablas?.basesSipa); };
 import { MODULES } from './modules/index.js';
 import { createRouter } from './shell/router.js';
 import { shellView } from './shell/shell.view.js';
@@ -34,6 +38,7 @@ async function boot() {
   };
 
   const [profile, settings] = await Promise.all([services.profile.ensure(), services.settings.get()]);
+  montarTablas(settings);
 
   /** Contexto compartido con todos los módulos. */
   const ctx = {
@@ -45,6 +50,7 @@ async function boot() {
     navigate: (path) => router.go(path),
     async updateSettings(next) {
       this.state.settings = await services.settings.save(next);
+      montarTablas(this.state.settings);
       bus.emit(EVENTS.settingsChanged, this.state.settings);
       return this.state.settings;
     },
@@ -63,7 +69,7 @@ async function boot() {
     onChange(mod) {
       $$('[data-nav]', shell).forEach((a) => a.classList.toggle('active', a.dataset.nav === mod.id));
       $('#page-title').textContent = mod.title;
-      document.title = `${mod.title} | ArgenLiquid PRO`;
+      document.title = `${mod.title} | Nomina AR PRO`;
       shell.classList.remove('nav-open');
     },
   });

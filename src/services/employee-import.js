@@ -2,6 +2,7 @@
  * Importación de empleados desde Excel/CSV: plantilla, mapeo de columnas,
  * normalización de valores y validación fila por fila. Sin DOM (testeable).
  */
+import { ESCALAS, listaConvenios } from '../domain/convenios/escalas.js';
 import { CONVENIOS } from '../domain/legal/articles.js';
 import { CONTRATOS, JORNADAS, PERIODICIDADES, normalizeEmployee, validateEmployee } from './employees.service.js';
 
@@ -31,7 +32,7 @@ export const TEMPLATE_HELP = [
   ['Tipo de contrato', CONTRATOS.map((c) => c[1]).join(' | ')],
   ['Jornada', JORNADAS.map((c) => c[1]).join(' | ')],
   ['Periodicidad de pago', PERIODICIDADES.map((c) => c[1]).join(' | ')],
-  ['Convenio', CONVENIOS.map((c) => c.nombre).join(' | ')],
+  ['Convenio', listaConvenios().map((c) => c.nombre).join(' | ')],
   ['Antigüedad % por año', 'Porcentaje que se adiciona al básico por cada año de antigüedad (ej: 1 en Comercio)'],
   ['Presentismo %', 'Porcentaje de presentismo sobre básico + antigüedad (ej: 8,33). Se pierde ante ausencias injustificadas.'],
   ['Régimen', 'Relación de dependencia | Pasantía. En pasantías la "Remuneración" es la asignación estímulo mensual (máx. 20 hs semanales).'],
@@ -118,7 +119,8 @@ const pick = (list, v, fallback) => {
 function parseConvenio(v) {
   const n = norm(v);
   if (!n) return '';
-  const hit = CONVENIOS.find((c) => c.id === n || norm(c.nombre) === n || norm(c.nombre).includes(n) || n.includes(norm(c.nombre).split(' — ')[0]));
+  const lista = listaConvenios();
+  const hit = lista.find((c) => c.id === n || norm(c.nombre) === n || norm(c.nombre).includes(n) || n.includes(norm(c.nombre).split(' — ')[0]));
   return hit ? hit.id : null;
 }
 

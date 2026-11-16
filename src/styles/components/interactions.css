@@ -1,0 +1,65 @@
+/* INTERACCIONES: iconos de ventanas, hover/focus y microanimaciones. Solo refuerzos visuales. */
+
+/* — Ventanas (modales) — */
+.modal-header { background: linear-gradient(180deg, var(--surface-2), var(--surface)); border-radius: 18px 18px 0 0; gap: .7rem; }
+.modal-ico { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: .95rem; color: var(--primary); background: var(--primary-50); box-shadow: inset 0 0 0 1px var(--primary-100); }
+.modal-ico.is-danger { color: var(--danger); background: var(--danger-bg); box-shadow: inset 0 0 0 1px #fecaca; }
+.modal-ico.is-warn { color: var(--warning); background: var(--warning-bg); box-shadow: inset 0 0 0 1px #fde68a; }
+.modal-header .icon-btn:hover { background: var(--danger-bg); color: var(--danger); transform: rotate(90deg); }
+.modal-header .icon-btn { transition: background .15s, color .15s, transform .2s; }
+.modal-overlay.open .modal { animation: modalPop .26s cubic-bezier(.2, .9, .3, 1.15); }
+@keyframes modalPop { from { opacity: 0; transform: translateY(14px) scale(.96); } }
+.modal-actions .btn i, .page-actions .btn i, .emp-foot .btn i { font-size: .9em; }
+
+/* Títulos de sección con icono */
+.fieldset-title, .section-title, .sec-title { display: flex; align-items: center; gap: .5rem; }
+.fieldset-title > i, .section-title > i, .sec-title > i { width: 24px; height: 24px; flex: none; display: grid; place-items: center; border-radius: 7px; font-size: .72rem; color: var(--primary); background: var(--primary-50); }
+
+/* Rótulos de campo con icono */
+.field > label > i { width: 14px; margin-right: .3rem; text-align: center; color: var(--primary); opacity: .8; font-size: .78rem; }
+.field:focus-within > label { color: var(--primary); }
+.field:focus-within > label > i { opacity: 1; }
+
+/* — Hover / foco — */
+.btn { position: relative; }
+.btn:hover { transform: translateY(-1px); }
+.btn-outline:hover, .btn-ghost:hover { box-shadow: 0 6px 14px -10px rgba(31, 95, 214, .6); }
+.btn i { transition: transform .18s; }
+.btn:hover i { transform: scale(1.12); }
+.icon-btn { transition: background .15s, color .15s, transform .15s; }
+.icon-btn:hover:not(:disabled) { transform: translateY(-1px) scale(1.06); }
+.icon-btn.pen:hover { background: var(--primary-50); color: var(--primary); }
+.icon-btn.danger:hover, .icon-btn[data-del]:hover { background: var(--danger-bg); color: var(--danger); }
+
+.card { transition: box-shadow .2s, border-color .2s, transform .2s; }
+.card:hover { border-color: var(--border-strong); }
+.stat, .quick a, .dcard, .feature, .law, .plan { transition: transform .18s, box-shadow .2s, border-color .2s, background .2s; }
+.stat:hover, .dcard:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -18px rgba(31, 95, 214, .45); border-color: var(--primary-100); }
+.quick a:hover { transform: translateY(-2px); border-color: var(--primary); background: var(--primary-50); }
+.quick a:hover i { transform: scale(1.15); }
+.quick a i { transition: transform .18s; }
+
+.table tbody tr { transition: background .12s, box-shadow .12s; }
+.table tbody tr:hover { background: #eef4ff; box-shadow: inset 3px 0 0 var(--primary); }
+.table tbody tr.row-sel { cursor: pointer; }
+.table tbody tr.row-sel.selected { background: var(--primary-50); box-shadow: inset 3px 0 0 var(--primary); }
+.row-actions { opacity: .55; transition: opacity .15s; }
+tr:hover .row-actions, .row-actions:focus-within { opacity: 1; }
+
+.nav-link { transition: background .15s, color .15s, transform .15s, padding .15s; }
+.nav-link:hover:not(.active) { transform: translateX(3px); }
+.nav-link:hover i { transform: scale(1.12); }
+.nav-link i { transition: color .15s, transform .15s; }
+
+.tabs button { transition: color .15s, background .15s, border-color .15s; }
+.tabs button:hover { color: var(--primary); background: var(--primary-50); }
+.tabs button i { margin-right: .3rem; }
+.badge { transition: transform .15s; }
+.badge:hover { transform: scale(1.04); }
+
+.input:hover:not(:focus), .select:hover:not(:focus), .textarea:hover:not(:focus) { border-color: var(--border-strong); }
+.check:hover { border-color: var(--primary-100); background: var(--primary-50); }
+
+/* Botones de la landing y del login */
+.feature:hover .ico { transform: scale(1.08) rotate(-4deg); }
+.feature .ico { transition: transform .2s; }

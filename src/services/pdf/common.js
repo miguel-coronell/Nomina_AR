@@ -203,18 +203,28 @@ export function paragraph(doc, y, { label, text, italic = false, size = 8.5, col
 }
 
 /** Líneas de firma. Si no entran en la hoja, pasan a una nueva (y el ajuste de densidad lo detecta). */
-export function signatures(doc, y, left, right) {
+export function signatures(doc, y, left, right, sigs = {}) {
   const { m, w } = PAGE;
-  const gap = 5 + 8 * D.k;
-  if (y + gap + 7 > PAGE.h - PAGE.bottom) { doc.addPage(); y = 25; }
+  const gap = 5 + 8 * D.k, extra = sigs.left || sigs.right ? 3 : 0;
+  if (y + gap + 7 + extra > PAGE.h - PAGE.bottom) { doc.addPage(); y = 25; }
   y += gap;
   doc.setDrawColor(...C.ink).setLineWidth(0.3);
   const half = (w - m * 2 - 20) / 2;
+  const xl = m + half / 2, xr = w - m - half / 2;
   doc.line(m, y, m + half, y).line(w - m - half, y, w - m, y);
   doc.setFont('helvetica', 'normal').setFontSize(fs(8)).setTextColor(...C.muted);
-  doc.text(t(left), m + half / 2, y + 3.6, { align: 'center' }).text(t(right), w - m - half / 2, y + 3.6, { align: 'center' });
+  doc.text(t(left), xl, y + 3.6, { align: 'center' }).text(t(right), xr, y + 3.6, { align: 'center' });
+  for (const [s, cx] of [[sigs.left, xl], [sigs.right, xr]]) {
+    if (!s) continue;
+    if (s.img) {
+      try {
+        const mh = Math.min(13, gap - 0.5), mw = half * 0.7, k = Math.min(mw / (s.w || 1), mh / (s.h || 1)), iw = (s.w || 1) * k, ih = (s.h || 1) * k;
+        doc.addImage(s.img, 'PNG', cx - iw / 2, y - ih - 0.3, iw, ih);
+      } catch { /* sin imagen */ }
+    }
+  }
   doc.setTextColor(...C.ink);
-  return y + 6;
+  return y + 6 + extra;
 }
 
 /**
@@ -248,10 +258,10 @@ export function tablaContribuciones(doc, y, costo, vacio = 'Sin contribuciones c
 }
 
 /** Pie con aviso legal y numeración, en todas las páginas. */
-export function footer(doc, texto, landscape = false) {
+export function footer(doc, texto, landscape = false, desde = 1) {
   const n = doc.getNumberOfPages();
   const W = landscape ? PAGE.h : PAGE.w, H = landscape ? PAGE.w : PAGE.h;
-  for (let i = 1; i <= n; i++) {
+  for (let i = desde; i <= n; i++) {
     doc.setPage(i);
     doc.setDrawColor(...C.line).setLineWidth(0.2).line(PAGE.m, H - 14, W - PAGE.m, H - 14);
     doc.setFont('helvetica', 'normal').setFontSize(6.8).setTextColor(...C.muted);

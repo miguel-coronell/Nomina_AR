@@ -37,7 +37,7 @@ export function createPager({ size = 10, sizes = [10, 25, 50], onChange = () => 
         html`<button type="button" class="pg-btn ${active ? 'active' : ''}" data-page="${p}" ${raw(disabled ? 'disabled' : '')} ${raw(aria ? `aria-label="${aria}"` : '')} ${raw(active ? 'aria-current="page"' : '')}>${raw(label)}</button>`;
       return html`
         <div class="pager">
-          <span class="pager-info">Mostrando <b>${info.from}–${info.to}</b> de <b>${info.total}</b></span>
+          <span class="pager-info">Mostrando <b>${info.from}–${info.to}</b> de <b>${info.total}</b>${info.pages > 1 ? html` · Página <b>${info.page}</b> de <b>${info.pages}</b>` : ''}</span>
           ${info.pages > 1 ? html`<nav class="pager-nav" aria-label="Paginación">
             ${btn('<i class="fas fa-angle-left"></i>', info.page - 1, { disabled: info.page === 1, aria: 'Página anterior' })}
             ${numbers(info.page, info.pages).map((n) => (n === '…' ? html`<span class="pg-gap">…</span>` : btn(n, n, { active: n === info.page })))}

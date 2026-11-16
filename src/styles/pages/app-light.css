@@ -1,0 +1,42 @@
+/* Nomina AR · panel en blanco y azul corporativo claro (misma paleta que la página del sitio, ver landing-light.css) */
+:root {
+  --primary: #2563eb; --primary-600: #1d4fd0; --primary-50: #eef5ff; --primary-100: #dbeafe;
+  --accent: #38a3f5; --navy: #12356b; --navy-2: #1d4fd0;
+  --text: #12356b; --text-2: #3e5a82; --text-3: #5b7498;
+  --bg: #f5f9ff; --surface-2: #f5f9ff; --border: #dbeafe; --border-strong: #bfdbfe;
+}
+
+/* Menú lateral claro */
+.sidebar { background: #fff; color: #3e5a82; border-right: 1px solid #dbeafe; }
+.sidebar .brand { color: #12356b; }
+.brand-mark { color: #2563eb; }
+.nav-group + .nav-group { border-top-color: #e3edfb; }
+.nav-link { color: #3e5a82; }
+.nav-link i { color: #5b7498; }
+.nav-link:hover { background: #eef5ff; color: #1d4fd0; }
+.nav-link:hover i { color: #2563eb; }
+.nav-link.active { background: #eef5ff; color: #1d4fd0; box-shadow: inset 3px 0 0 #2563eb; }
+.nav-link.active i { color: #2563eb; }
+.sidebar-foot { border-top-color: #e3edfb; }
+.user-chip strong { color: #12356b; }
+.user-chip small { color: #5b7498; }
+.sidebar-foot .btn { background: #eef5ff; color: #1d4fd0; }
+.sidebar-foot .btn:hover { background: #fee2e2; color: #dc2626; }
+.brand small { background: #eef5ff; color: #2563eb; }
+
+/* Pantalla de carga */
+.boot { background: linear-gradient(165deg, #fff 0%, #eef5ff 55%, #dbeafe 100%); color: #12356b; }
+.boot .ring { border-color: rgba(37, 99, 235, .15); border-top-color: #2563eb; }
+
+/* Bloques que eran azul oscuro */
+.big-total { background: linear-gradient(135deg, #eaf3ff, #dbeafe); color: #12356b; border: 1px solid #cfe0f7; }
+.big-total small { color: #1d4fd0; }
+.big-total .sub { color: #3e5a82; }
+.share-doc { background: linear-gradient(135deg, #eaf3ff, #dbeafe); color: #12356b; border: 1px solid #cfe0f7; }
+.share-doc-ico { background: #fff; color: #2563eb; }
+.share-doc-txt small, .share-doc-amt small { color: #5b7498; }
+
+/* Cabecera de los diálogos y tablas, mismo celeste de la página */
+.sec-title { background: #eef5ff; color: #12356b; }
+.table tbody tr:hover { background: #f5f9ff; }
+.row-sel.selected { background: #eef5ff !important; }

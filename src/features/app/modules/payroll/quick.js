@@ -17,7 +17,7 @@ export function mountQuickCalc(host, ctx, employees, onCreateRun) {
         <div class="card-body"><form id="qc" class="form-grid" novalidate>
           <div class="field"><label>Empleado</label><select class="select" name="emp">${list.map((e) => html`<option value="${e.id}">${e.nombre}</option>`)}</select></div>
           <div class="field"><label>Período</label><input class="input" type="month" name="ym" value="${ym}"></div>
-          ${NOV.map(([k, l, u]) => html`<div class="field" ${k === 'hsNormales' ? 'data-hn' : ''}><label>${l} <small class="muted-text">(${u})</small></label><input class="input" type="number" min="0" step="any" name="${k}" placeholder="0"></div>`)}
+          ${NOV.map(([k, l, u]) => html`<div class="field" ${k === 'hsNormales' ? 'data-hn' : ''}><label>${l} <small class="muted-text">(${u})</small></label><input class="input" type="number" min="0" step="any" name="${k}" placeholder="${k === 'hsNormales' ? 'Auto (horas hábiles)' : '0'}"></div>`)}
           <div class="full"><button type="button" class="btn btn-primary btn-block" data-calc><i class="fas fa-calculator"></i> Calcular liquidación</button></div>
         </form></div></div>
       <div class="card"><div class="card-header"><h3><i class="fas fa-circle-check" style="color:var(--success)"></i> Resultado de la liquidación</h3><span class="badge badge-success">Cálculo actualizado</span></div>

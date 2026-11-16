@@ -54,3 +54,83 @@
   .receipt .disclaimer { margin-top: 5px; font-size: 7.5px; }
   .receipt .r-bar { height: 13px; }
 }
+
+/* ---- Recibo clásico de empresa (horizontal, original + duplicado) ---- */
+.rc-sheet { display: flex; gap: 6mm; width: 281mm; max-width: none; background: #fff; color: #000; font-family: 'Times New Roman', Times, serif; font-size: 8pt; page-break-after: always; break-after: page; }
+.rc-sheet:last-child { page-break-after: auto; break-after: auto; }
+.rc-copy { width: 137.5mm; height: 190mm; display: flex; flex-direction: column; }
+.rc-tag { text-align: center; font-size: 7pt; height: 3.5mm; }
+.rc-box { flex: 1; border: .4mm solid #000; display: flex; flex-direction: column; }
+.rc-box b, .rc-box th { font-weight: 700; }
+.rc-head { display: grid; grid-template-columns: 56% 44%; border-bottom: .25mm solid #000; min-height: 24mm; }
+.rc-head > div { padding: 1.5mm 2mm; display: flex; flex-direction: column; justify-content: space-between; }
+.rc-head > div + div { border-left: .25mm solid #000; }
+.rc-big { font-size: 8.5pt; }
+.rc-row { display: grid; grid-template-columns: 10% 46% 24% 20%; text-align: center; border-bottom: .25mm solid #000; font-weight: 700; font-size: 6.8pt; }
+.rc-row span { padding: 1mm .5mm; border-left: .25mm solid #000; } .rc-row span:first-child { border-left: 0; }
+.rc-val { font-size: 8.5pt; } .rc-val i { font-style: italic; }
+.rc-dep { display: grid; grid-template-columns: 1fr 1fr; border-bottom: .25mm solid #000; font-weight: 700; font-size: 6.8pt; text-align: center; }
+.rc-dep > div + div { border-left: .25mm solid #000; }
+.rc-t { padding: 1mm; border-bottom: .25mm solid #000; } .rc-dep > div > .rc-t:last-child { border-bottom: 0; font-size: 8pt; }
+.rc-3 { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: .25mm solid #000; }
+.rc-3 span { padding: 1mm .5mm; border-left: .25mm solid #000; } .rc-3 span:first-child { border-left: 0; }
+.rc-n { font-weight: 400; border-bottom: 0; } .rc-liq { grid-template-columns: 1fr 1fr 1.2fr; } .rc-liq .r { text-align: right; }
+.rc-tbl, .rc-pie { width: 100%; border-collapse: collapse; font-weight: 700; }
+.rc-tbl { flex: 1; } .rc-tbl th, .rc-pie th { font-size: 6.8pt; border-bottom: .25mm solid #000; padding: 1mm; text-align: center; }
+.rc-tbl td { padding: .5mm 1.5mm; font-size: 7.6pt; border-left: .25mm solid #000; vertical-align: top; } .rc-tbl td:first-child { border-left: 0; } .rc-tbl th + th { border-left: .25mm solid #000; }
+.rc-tbl .rc-fill td { height: 100%; }
+.rc-tbl col, .rc-tbl th:nth-child(1) { width: 8%; } .rc-tbl th:nth-child(2) { width: 38%; } .rc-tbl th:nth-child(3) { width: 10%; } .rc-tbl th:nth-child(4) { width: 15%; } .rc-tbl th:nth-child(5) { width: 13%; } .rc-tbl th:nth-child(6) { width: 16%; }
+.rc-pie { border-top: .25mm solid #000; border-bottom: .25mm solid #000; table-layout: fixed; }
+.rc-pie th:nth-child(1) { width: 46%; } .rc-pie th:nth-child(2) { width: 10%; } .rc-pie th:nth-child(3) { width: 15%; } .rc-pie th:nth-child(4) { width: 13%; } .rc-pie th:nth-child(5) { width: 16%; }
+.rc-pie th, .rc-pie td { border-left: .25mm solid #000; } .rc-pie th:first-child, .rc-pie td:first-child { border-left: 0; }
+.rc-pie td { padding: 1.2mm 1.5mm; font-size: 7.6pt; } .rc-pie thead th { border-bottom: .25mm solid #000; }
+.rc .r, .rc-sheet .r { text-align: right; } .rc-sheet .c { text-align: center; }
+.rc-neto { display: grid; grid-template-columns: 1fr 16%; font-weight: 700; font-size: 7.4pt; min-height: 14mm; }
+.rc-neto > div:first-child { padding: 1.5mm 3mm; } .rc-neto > div:first-child p { margin: 0 0 1.5mm; }
+.rc-neto > div:last-child { display: flex; flex-direction: column; } .rc-neto small { text-align: center; font-size: 7pt; padding: .5mm 0 .8mm; }
+.rc-neto b { border: .25mm solid #000; text-align: right; padding: 1.5mm 2mm; font-size: 9pt; margin-top: auto; }
+.rc-firma { display: grid; grid-template-columns: 56% 44%; padding: 2mm 3mm 3mm; font-weight: 700; font-size: 7.4pt; min-height: 18mm; align-items: end; }
+.rc-firma p { margin: 0; } .rc-firma > div { text-align: center; } .rc-firma span { display: block; border-top: .3mm dotted #000; margin: 0 0 1mm; }
+.rc-firma small { color: #000; font-size: 7.4pt; font-weight: 700; display: inline; }
+
+.rc-firma em { display: block; font-style: normal; font-weight: 400; font-size: 6.6pt; text-align: left; margin-top: 1mm; }
+.rc-firma { min-height: 24mm; }
+
+/* Firma digital */
+.firma-digital { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: .8rem; padding: .7rem .8rem; border: 1px solid var(--primary-100); background: var(--primary-50); border-radius: var(--radius-sm); }
+.firma-digital[hidden] { display: none; }
+.sw { display: flex; align-items: center; gap: .6rem; cursor: pointer; flex: 1 1 220px; font-size: .86rem; font-weight: 600; color: var(--navy); }
+.sw input { position: absolute; opacity: 0; pointer-events: none; }
+.sw-track { width: 42px; height: 24px; border-radius: 99px; background: #b9c8de; position: relative; flex: none; transition: .2s; }
+.sw-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: .2s; }
+.sw input:checked + .sw-track { background: var(--primary); }
+.sw input:checked + .sw-track::after { transform: translateX(18px); }
+.sw input:focus-visible + .sw-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sw-txt small { display: block; font-weight: 500; color: var(--text-2); font-size: .74rem; }
+.rc-sig { display: block; margin: 0 auto -.8mm; max-height: 11mm; max-width: 80%; }
+.rc-firma { min-height: 30mm; }
+.receipt .sign .sg { position: relative; border-top: 1px solid #111827; padding-top: 3px; }
+.receipt .sign .sg img { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(100% + 1px); max-height: 32px; max-width: 80%; }
+.receipt .sign .sg span { display: block; }
+.sw-item { display: flex; align-items: center; gap: .6rem; flex: 1 1 260px; flex-wrap: wrap; }
+.sw-item .sw { flex: 1 1 180px; }
+.sw-thumb { height: 34px; max-width: 110px; object-fit: contain; background: #fff; border: 1px solid var(--primary-100); border-radius: 8px; padding: 2px 4px; }
+/* Tablero de firma */
+.sp-hint { margin: 0 0 .6rem; color: var(--text-2); font-size: .88rem; }
+.sp-wrap { position: relative; height: 230px; border: 2px dashed var(--primary); border-radius: 14px; background: #fff; overflow: hidden; }
+.sp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; -webkit-user-select: none; user-select: none; }
+.sp-line { position: absolute; left: 6%; right: 6%; bottom: 52px; border-top: 1px solid #b9c8de; pointer-events: none; }
+.sp-ph { position: absolute; inset: 0; display: grid; place-items: center; color: #9fb4d6; font-weight: 700; font-size: 1.1rem; pointer-events: none; }
+.sp-ph[hidden] { display: none; }
+.sp-tools { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-top: .6rem; } .sp-tools small { color: var(--text-3); }
+@media (max-width: 640px) { .sp-wrap { height: 200px; } }
+
+/* Selector de formato de recibo (Clásico / Completo) */
+.fmt-opts { display: grid; gap: .6rem; }
+.fmt-opt { display: flex; align-items: center; gap: .9rem; width: 100%; text-align: left; padding: .9rem 1rem; border: 1.5px solid var(--primary-100); background: #fff; border-radius: var(--radius-sm); cursor: pointer; font: inherit; color: inherit; transition: border-color .15s, background .15s, box-shadow .15s; }
+.fmt-opt:hover, .fmt-opt:focus-visible { border-color: var(--primary); background: var(--primary-50); box-shadow: 0 0 0 3px var(--primary-100); outline: none; }
+.fmt-opt > i { font-size: 1.4rem; color: var(--primary); width: 1.8rem; text-align: center; }
+.fmt-opt b { display: block; font-size: .95rem; }
+.fmt-opt small { display: block; color: var(--muted, #6b7280); font-size: .8rem; margin-top: .15rem; }
+.fmt-opt.is-default { border-color: var(--primary); }
+.fmt-opt.is-default b::after { content: 'Predeterminado'; margin-left: .5rem; font-size: .66rem; font-weight: 600; padding: .1rem .4rem; border-radius: 999px; background: var(--primary-100); color: var(--primary); vertical-align: middle; }

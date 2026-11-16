@@ -51,3 +51,28 @@ export function resolverMarcoLegal(fechaEgreso, settings = {}) {
 export const PISO_VIZZOTI = 0.67;
 export const DIVISOR_HORA = 200;     // remuneración mensual / 200 = valor hora
 export const DIVISOR_VACACIONES = 25; // Art. 155 LCT
+
+/**
+ * BASE IMPONIBLE MÍNIMA SIPA por vigencia (Dto. 488/2011). El piso de obra social es el doble.
+ * Para agregar un mes nuevo: sumá una fila con su fecha `desde` (ISO). Cada período toma la vigencia
+ * más reciente anterior o igual a su fecha de inicio.
+ */
+export const BASES_MINIMAS_SIPA = [
+  { desde: '2026-10-01', valor: 146759.98, fuente: 'Res. ANSES 284/2026' },
+  { desde: '2026-11-01', valor: 149592.45, fuente: 'Res. ANSES 304/2026' },
+];
+
+const BASES_SIPA_FABRICA = BASES_MINIMAS_SIPA.map((x) => ({ ...x }));
+/** Monta las bases que el usuario cargó en «Escalas y vigencias» sobre las de fábrica (misma fecha = pisa). */
+export function aplicarBasesSipa(extra = []) {
+  const m = new Map();
+  [...BASES_SIPA_FABRICA, ...extra].forEach((x) => { if (x?.desde && x.valor > 0) m.set(x.desde, { ...x }); });
+  BASES_MINIMAS_SIPA.splice(0, BASES_MINIMAS_SIPA.length, ...[...m.values()].sort((a, b) => a.desde.localeCompare(b.desde)));
+}
+export { BASES_SIPA_FABRICA };
+
+/** Vigencia aplicable a una fecha ISO: { valor, desde, fuente } o null si no hay ninguna cargada. */
+export function baseMinimaSipa(fecha) {
+  const v = [...BASES_MINIMAS_SIPA].filter((x) => x.desde <= fecha).sort((a, b) => b.desde.localeCompare(a.desde))[0];
+  return v || null;
+}

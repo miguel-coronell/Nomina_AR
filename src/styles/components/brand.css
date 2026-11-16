@@ -4,3 +4,5 @@
 .brand small { font-size: .62rem; background: rgba(255, 255, 255, .16); padding: .15rem .45rem; border-radius: 6px; letter-spacing: .08em; vertical-align: middle; margin-left: .2rem; }
 .site-header .brand, .app-light .brand { color: var(--navy); }
 .site-header .brand small { background: var(--primary-50); color: var(--primary); }
+.brand .brand-mark { background: none; overflow: hidden; }
+.brand .brand-mark img { width: 100%; height: 100%; display: block; }

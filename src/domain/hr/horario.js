@@ -12,6 +12,17 @@ export function normalizarHorario(h) {
   const base = h && typeof h === 'object' && Object.keys(h).length ? h : HORARIO_DEFAULT;
   return Object.fromEntries([0, 1, 2, 3, 4, 5, 6].map((d) => [d, num(base[d] ?? base[String(d)])]));
 }
+/**
+ * Horario efectivo de una ficha: el horario explícito si lo tiene; si no, las "Horas semanales" de la ficha
+ * repartidas de lunes a viernes (30 hs → 6 hs por día; 44 hs → 8,8 hs por día). Sin ninguno de los dos, el default (8 hs).
+ */
+export function horarioDeFicha(snap) {
+  if (snap?.horario && typeof snap.horario === 'object' && Object.keys(snap.horario).length) return snap.horario;
+  const hs = Number(snap?.horasSemanales) || 0;
+  if (!(hs > 0)) return undefined;
+  const dia = Math.round((hs / 5) * 100) / 100;
+  return { 1: dia, 2: dia, 3: dia, 4: dia, 5: dia, 6: 0, 0: 0 };
+}
 export const horasPactadas = (horario, iso) => normalizarHorario(horario)[dowOf(iso)] || 0;
 export const horasSemanales = (horario) => Math.round(Object.values(normalizarHorario(horario)).reduce((a, b) => a + b, 0) * 100) / 100;
 export const maxDiaria = (horario) => Math.max(...Object.values(normalizarHorario(horario)));

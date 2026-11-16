@@ -137,7 +137,7 @@ export const MULTAS_NOTA =
 export const CONVENIOS = [
   { id: 'comercio', nombre: 'CCT 130/75 — Empleados de Comercio' },
   { id: 'construccion', nombre: 'CCT 76/75 — Construcción (UOCRA)' },
-  { id: 'metalurgico', nombre: 'CCT 260/75 — Metalúrgicos (UOM)' },
+  { id: 'uom', nombre: 'CCT 260/75 — Metalúrgicos Rama 17 (UOM)' },
   { id: 'bancario', nombre: 'CCT 18/75 — Bancarios' },
   { id: 'gastronomicos', nombre: 'CCT 389/04 — Gastronómicos (UTHGRA)' },
   { id: 'camioneros', nombre: 'CCT 40/89 — Camioneros' },

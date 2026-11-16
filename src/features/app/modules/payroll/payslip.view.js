@@ -7,6 +7,9 @@ import { costoLaboral, estiloGrafico } from '../../../../domain/payroll/costo.js
 import { depositoTexto } from '../../../../services/pdf/payslip.pdf.js';
 import { patronalesDe } from '../../../../domain/payroll/engine.js';
 import { APP } from '../../../../config/app.config.js';
+import { formatoRecibo } from '../../../../domain/payroll/clasico.js';
+import { getFirmas } from '../../../../services/firmas.service.js';
+import { payslipClasicoHTML } from './payslip-clasico.view.js';
 import { logoImg, seccion, contribucionesHTML, resumenCostoHTML, datosHTML } from '../../shared/receipt-parts.js';
 
 const MEDIOS = { transferencia: 'Transferencia bancaria', efectivo: 'Efectivo', cheque: 'Cheque', otro: 'Otro medio' };
@@ -15,8 +18,11 @@ const mask = (cbu) => (cbu ? `${'•'.repeat(Math.max(0, cbu.length - 4))}${cbu.
 const q = (v) => (v === undefined || v === null || v === '' ? '' : number(v));
 
 /** Recibo de haberes (art. 140 LCT, Ley 27.802; Decreto 407/2026): 4 secciones + resumen del costo laboral. */
+const firmaStd = (f, label) => html`<div class="sg">${f?.img ? html`<img src="${f.img}" alt="Firma">` : ''}<span>${label}</span></div>`;
+
 export function payslipHTML(run, l, estudio = {}, userName = '') {
-  const costo = costoLaboral({ bruto: l.totals.bruto, baseAportes: l.totals.baseAportes, ausencias: l.totals.ausencias || 0, deducciones: l.deducciones, patronales: patronalesDe(l.snap, run.params || {}), estilo: estiloGrafico(estudio) });
+  if (formatoRecibo(estudio) === 'clasico' && l.snap.regimen !== 'pasantia') return payslipClasicoHTML(run, l, estudio, userName);
+  const costo = costoLaboral({ bruto: l.totals.bruto, baseAportes: l.totals.baseAportes, ausencias: l.totals.ausencias || 0, deducciones: l.deducciones, patronales: l.patronales || patronalesDe(l.snap, run.params || {}), neto: l.totals.neto, estilo: estiloGrafico(estudio) });
   const pas = l.snap.regimen === 'pasantia';
   const pagado = l.pago.estado === 'pagado';
   const fin = l.snap.fechaEgreso && l.snap.fechaEgreso < run.hasta ? l.snap.fechaEgreso : run.hasta;
@@ -65,7 +71,7 @@ export function payslipHTML(run, l, estudio = {}, userName = '') {
     ${seccion(null, 'RESUMEN DE LA COMPOSICIÓN DEL COSTO LABORAL TOTAL (por rubro)')}
     ${resumenCostoHTML(costo)}
 
-    <div class="sign"><div>Firma del empleador</div><div>Firma del trabajador</div></div>
+    <div class="sign">${firmaStd(getFirmas(run, l).empleador, 'Firma del empleador')}${firmaStd(getFirmas(run, l).empleado, 'Firma del trabajador')}</div>
     <p class="disclaimer">${pas ? 'Pasantía educativa (Ley 26.427): no genera relación laboral; la asignación estímulo es no remunerativa.' : 'Recibo de haberes conforme art. 140 LCT (texto Ley 27.802) y Decreto 407/2026.'} Se confecciona en doble ejemplar. Generado con ${APP.name} ${APP.edition}.</p>
   </div>`;
 }

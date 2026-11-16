@@ -11,7 +11,7 @@ export function shellView({ modules, user, plan }) {
   <div class="app-shell" id="shell">
     <aside class="sidebar" aria-label="Menú principal">
       <a class="brand" href="${ROUTES.home}">
-        <span class="brand-mark"><i class="fas fa-cube"></i></span>
+        <span class="brand-mark"><img src="${new URL('../../../../assets/logo.svg', import.meta.url).href}" alt="" width="40" height="40"></span>
         <span>${APP.name} <small>${APP.edition}</small></span>
       </a>
       ${GROUPS.map((g) => {

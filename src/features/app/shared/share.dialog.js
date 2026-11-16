@@ -13,7 +13,7 @@ import { buildMessage, normalizePhone, prettyPhone, isEmail, whatsappLink, mailt
 
 /** "Pérez, Juan Carlos" → "Juan Carlos" para saludar; si no hay coma se usa el nombre tal cual. */
 const saludoDe = (name = '') => (name.includes(',') ? name.split(',').slice(1).join(' ').trim() || name : name);
-const empresaDe = (ctx) => ctx.state.settings.estudio.razonSocial || ctx.user.name || 'ArgenLiquid';
+const empresaDe = (ctx) => ctx.state.settings.estudio.razonSocial || ctx.user.name || 'Nomina AR';
 
 /** Abre un enlace externo sin perder la pestaña de la app. */
 function openLink(url, sameTab = false) {
@@ -43,8 +43,8 @@ async function contactOf(ctx, employeeId) {
 }
 
 /* ---------------- Descriptores de documento ---------------- */
-function payslipDoc(ctx, run, line, contact) {
-  const est = ctx.state.settings.estudio;
+function payslipDoc(ctx, run, line, contact, estOverride) {
+  const est = estOverride || ctx.state.settings.estudio;
   const fecha = line.pago?.estado === 'pagado' ? line.pago.fecha : run.fechaPago;
   return {
     kind: 'sueldo',
@@ -184,8 +184,8 @@ function openShareDialog(ctx, doc) {
   return m;
 }
 
-export async function sharePayslip(ctx, run, line) {
-  return openShareDialog(ctx, payslipDoc(ctx, run, line, await contactOf(ctx, line.employeeId)));
+export async function sharePayslip(ctx, run, line, estOverride) {
+  return openShareDialog(ctx, payslipDoc(ctx, run, line, await contactOf(ctx, line.employeeId), estOverride));
 }
 
 export async function shareLiquidacion(ctx, rec) {
@@ -193,7 +193,7 @@ export async function shareLiquidacion(ctx, rec) {
 }
 
 /* ---------------- Envío por lote: toda la nómina ---------------- */
-export async function shareBatch(ctx, run) {
+export async function shareBatch(ctx, run, estOverride) {
   const emps = await ctx.services.employees.list();
   const contacts = new Map(emps.map((e) => [e.id, { phone: e.telefono || '', email: e.email || '' }]));
   const sent = new Set();
@@ -231,7 +231,7 @@ export async function shareBatch(ctx, run) {
     if (!b || b.disabled) return;
     const id = b.dataset.wa || b.dataset.mail || b.dataset.more;
     const line = run.lines.find((l) => l.employeeId === id);
-    const doc = payslipDoc(ctx, run, line, contacts.get(id) || {});
+    const doc = payslipDoc(ctx, run, line, contacts.get(id) || {}, estOverride);
     if (b.dataset.more) { m.close(); openShareDialog(ctx, doc); return; }
     const { text, subject } = buildMessage('sueldo', ctx.state.settings.mensajes, doc.vars);
     if (b.dataset.wa) openLink(whatsappLink(doc.contact.phone, text));

@@ -5,6 +5,8 @@ import { dcard, iconLead } from '../../../../core/ui/cards.js';
 import { statValue } from '../../../../core/ui/stat.js';
 import { downloadPayslipsPDF, downloadPayrollSummaryPDF } from '../../../../services/pdf/index.js';
 import { exportNominaXLSX, exportPagosCSV } from '../payroll/export.js';
+import { elegirFormatoRecibo, estConFormato } from '../../shared/recibo-formato.dialog.js';
+import { printAllPayslips } from '../payroll/dialogs.js';
 
 const bars = (data, key) => {
   const max = Math.max(...data.map((d) => d[key]), 1);
@@ -66,6 +68,7 @@ export default {
               <td class="actions"><div class="row-actions">
                 <button class="btn btn-outline btn-sm" data-dl="resumen" data-id="${r.id}"><i class="fas fa-file-pdf"></i> Resumen PDF</button>
                 <button class="btn btn-outline btn-sm" data-dl="recibos" data-id="${r.id}"><i class="fas fa-file-lines"></i> Recibos</button>
+                <button class="btn btn-outline btn-sm" data-dl="imprimir" data-id="${r.id}"><i class="fas fa-print"></i> Imprimir</button>
                 <button class="btn btn-outline btn-sm" data-dl="xlsx" data-id="${r.id}"><i class="fas fa-file-excel"></i> Excel</button>
                 <button class="btn btn-outline btn-sm" data-dl="csv" data-id="${r.id}"><i class="fas fa-file-csv"></i> Pagos</button></div></td></tr>`)}</tbody></table></div>
           <div class="cards-list">${done.slice(0, 12).map((r) => dcard({
@@ -73,6 +76,7 @@ export default {
             rows: [['fa-sack-dollar', 'Neto liquidado', money(r.totals.neto), 'hl wide']],
             actions: html`<div class="dl-grid"><button class="btn btn-outline btn-sm" data-dl="resumen" data-id="${r.id}"><i class="fas fa-file-pdf"></i> Resumen PDF</button>
               <button class="btn btn-outline btn-sm" data-dl="recibos" data-id="${r.id}"><i class="fas fa-file-lines"></i> Recibos</button>
+                <button class="btn btn-outline btn-sm" data-dl="imprimir" data-id="${r.id}"><i class="fas fa-print"></i> Imprimir</button>
               <button class="btn btn-outline btn-sm" data-dl="xlsx" data-id="${r.id}"><i class="fas fa-file-excel"></i> Excel</button>
               <button class="btn btn-outline btn-sm" data-dl="csv" data-id="${r.id}"><i class="fas fa-file-csv"></i> Pagos</button></div>`,
           }))}</div>`
@@ -86,10 +90,13 @@ export default {
     });
     on(el, 'click', '[data-dl]', async (_, b) => {
       const run = done.find((r) => r.id === b.dataset.id), est = ctx.state.settings.estudio, k = b.dataset.dl;
+      let est2 = est;
+      if (k === 'imprimir') { const fmt = await elegirFormatoRecibo(ctx, { accion: 'Imprimir', detalle: `${run.label} · ${run.lines.length} recibos` }); if (fmt) printAllPayslips(ctx, run, estConFormato(ctx, fmt)); return; }
+      if (k === 'recibos') { const fmt = await elegirFormatoRecibo(ctx, { accion: 'Descargar', detalle: `${run.label} · ${run.lines.length} recibos` }); if (!fmt) return; est2 = estConFormato(ctx, fmt); }
       b.setAttribute('aria-busy', 'true');
       try {
         if (k === 'resumen') await downloadPayrollSummaryPDF(run, est, ctx.user.name);
-        if (k === 'recibos') await downloadPayslipsPDF(run, run.lines, est, ctx.user.name);
+        if (k === 'recibos') await downloadPayslipsPDF(run, run.lines, est2, ctx.user.name);
         if (k === 'xlsx') await exportNominaXLSX(run);
         if (k === 'csv') exportPagosCSV(run);
       } catch { ctx.toast('No se pudo generar el archivo. Revisá tu conexión.', 'error'); }

@@ -24,3 +24,20 @@ export async function fileToLogo(file, { maxW = 480, maxH = 200 } = {}) {
     return { data, w, h, fmt };
   } finally { URL.revokeObjectURL(url); }
 }
+
+/** Foto de empleado: recorte cuadrado centrado, reducida y comprimida (JPEG) para guardarla como data URL. */
+export async function fileToPhoto(file, size = 220) {
+  if (!/^image\/(png|jpe?g|webp|gif)$/.test(file.type)) throw Object.assign(new Error('Formato no admitido'), { code: 'FORMAT' });
+  if (file.size > 10 * 1024 * 1024) throw Object.assign(new Error('El archivo supera los 10 MB'), { code: 'SIZE' });
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(Object.assign(new Error('No se pudo leer la imagen'), { code: 'READ' })); i.src = url; });
+    const s = Math.min(img.naturalWidth, img.naturalHeight), sx = (img.naturalWidth - s) / 2, sy = (img.naturalHeight - s) / 2;
+    const c = document.createElement('canvas'); c.width = c.height = size;
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, size, size);
+    x.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+    let data = c.toDataURL('image/jpeg', 0.82);
+    if (data.length > 90_000) data = c.toDataURL('image/jpeg', 0.65);
+    return data;
+  } finally { URL.revokeObjectURL(url); }
+}

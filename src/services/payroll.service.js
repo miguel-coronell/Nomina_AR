@@ -1,4 +1,4 @@
-import { armarRun, recalcRun, recalcLinea, nuevaLinea, totalesRun, estadoTrasPagos, periodoDeRun, paramsDe } from '../domain/payroll/run.js';
+import { armarRun, recalcRun, recalcLinea, nuevaLinea, totalesRun, estadoTrasPagos, periodoDeRun, paramsDe, conValorHora } from '../domain/payroll/run.js';
 import { describirPeriodo, elegible, incluirEn } from '../domain/payroll/periodos.js';
 import { snapshotEmpleado, normalizarNovedades } from '../domain/payroll/engine.js';
 
@@ -7,7 +7,7 @@ const err = (code, message) => Object.assign(new Error(message || code), { code 
 
 export function createPayrollService(repo) {
   const persist = async (run) => {
-    const patch = { lines: run.lines, totals: run.totals, estado: run.estado, params: run.params, fechaPago: run.fechaPago || '', notas: run.notas || '', lugarPago: run.lugarPago || '', deposito: run.deposito || null };
+    const patch = { lines: run.lines, totals: run.totals, estado: run.estado, params: run.params, fechaPago: run.fechaPago || '', notas: run.notas || '', lugarPago: run.lugarPago || '', deposito: run.deposito || null, reciboDesde: run.reciboDesde || '' };
     await repo.update(COL, run.id, patch);
     return run;
   };
@@ -50,9 +50,15 @@ export function createPayrollService(repo) {
       const lines = employees.filter((e) => incluirEn(e, periodo.tipo) && elegible(e, periodo)).map((e) => {
         const prev = cur.get(e.id);
         if (!prev) return nuevaLinea(e, periodo, params);
-        return recalcLinea({ ...prev, nombre: e.nombre, dni: e.dni || '', cuil: e.cuil || '', legajo: e.legajo || '', categoria: e.categoria || '', banco: e.banco || '', cbu: e.cbu || '', snap: snapshotEmpleado(e) }, periodo, params);
+        return recalcLinea({ ...prev, nombre: e.nombre, dni: e.dni || '', cuil: e.cuil || '', legajo: e.legajo || '', categoria: e.categoria || '', banco: e.banco || '', cbu: e.cbu || '', snap: snapshotEmpleado(conValorHora(e, periodo)) }, periodo, params);
       }).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
       return persist(withTotals({ ...run, params, lines }));
+    },
+
+    /** Cambia la vigencia de la escala con que se liquida ('' = automática, la del inicio del período) y recalcula. Solo borrador. */
+    async setVigencia(run, vigencia, employees, settings) {
+      editable(run);
+      return this.refresh({ ...run, vigencia: /^\d{4}-\d{2}-\d{2}$/.test(vigencia || '') ? vigencia : '' }, employees, settings);
     },
 
     async removeLine(run, employeeId) {
@@ -60,8 +66,8 @@ export function createPayrollService(repo) {
       return persist(withTotals({ ...run, lines: run.lines.filter((l) => l.employeeId !== employeeId) }));
     },
 
-    async setMeta(run, { fechaPago, notas, lugarPago, deposito }) {
-      return persist({ ...run, fechaPago: fechaPago ?? run.fechaPago, notas: notas ?? run.notas, lugarPago: lugarPago ?? run.lugarPago, deposito: deposito ?? run.deposito });
+    async setMeta(run, { fechaPago, notas, lugarPago, deposito, reciboDesde }) {
+      return persist({ ...run, fechaPago: fechaPago ?? run.fechaPago, notas: notas ?? run.notas, lugarPago: lugarPago ?? run.lugarPago, deposito: deposito ?? run.deposito, reciboDesde: reciboDesde ?? run.reciboDesde });
     },
 
     async cerrar(run, settings) {

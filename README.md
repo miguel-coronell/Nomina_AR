@@ -1,4 +1,4 @@
-# ArgenLiquid PRO
+# Nomina AR PRO
 
 Liquidaciones laborales argentinas (LCT 20.744 + Leyes 27.742 y 27.802). Web estática (HTML + JS modular + CSS), sin paso de build. Login con **Firebase Auth** (Google y correo/contraseña) y datos por usuario en **Firestore**.
 
