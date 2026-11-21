@@ -7,7 +7,7 @@ import { costoLaboral, estiloGrafico } from '../../../../domain/payroll/costo.js
 import { depositoTexto } from '../../../../services/pdf/payslip.pdf.js';
 import { patronalesDe } from '../../../../domain/payroll/engine.js';
 import { APP } from '../../../../config/app.config.js';
-import { formatoRecibo } from '../../../../domain/payroll/clasico.js';
+import { formatoRecibo, conceptoRecibo } from '../../../../domain/payroll/clasico.js';
 import { getFirmas } from '../../../../services/firmas.service.js';
 import { payslipClasicoHTML } from './payslip-clasico.view.js';
 import { logoImg, seccion, contribucionesHTML, resumenCostoHTML, datosHTML } from '../../shared/receipt-parts.js';
@@ -55,9 +55,9 @@ export function payslipHTML(run, l, estudio = {}, userName = '') {
     <table class="r-tbl">
       <thead><tr><th>Concepto</th><th class="num">Cant.</th><th>Un.</th><th class="num">Base de cálculo</th><th class="num">Rem. c/ aportes</th><th class="num">Rem. s/ aportes</th><th class="num">Deducciones</th></tr></thead>
       <tbody>
-        ${l.rubros.filter((r) => r.tipo === 'remunerativo').map((r) => html`<tr><td>${r.label}</td><td class="num">${q(r.cant)}</td><td>${r.unidad || ''}</td><td class="num">${r.base != null ? money(r.base) : ''}</td><td class="num">${money(r.amount)}</td><td></td><td></td></tr>`)}
-        ${l.rubros.filter((r) => r.tipo === 'no_remunerativo').map((r) => html`<tr><td>${r.label}</td><td class="num">${q(r.cant)}</td><td>${r.unidad || ''}</td><td class="num">${r.base != null ? money(r.base) : ''}</td><td></td><td class="num">${money(r.amount)}</td><td></td></tr>`)}
-        ${l.deducciones.map((d) => html`<tr><td>${d.label}</td><td class="num">${d.pct != null ? q(d.pct) : q(d.cant)}</td><td>${d.pct != null ? '%' : d.unidad || ''}</td><td class="num">${d.base != null ? money(d.base) : ''}</td><td></td><td></td><td class="num">${money(d.amount)}</td></tr>`)}
+        ${l.rubros.filter((r) => r.tipo === 'remunerativo').map((r) => html`<tr><td>${conceptoRecibo(l, r).concepto}</td><td class="num">${q(r.cant)}</td><td>${r.unidad || ''}</td><td class="num">${r.base != null ? money(r.base) : ''}</td><td class="num">${money(r.amount)}</td><td></td><td></td></tr>`)}
+        ${l.rubros.filter((r) => r.tipo === 'no_remunerativo').map((r) => html`<tr><td>${conceptoRecibo(l, r).concepto}</td><td class="num">${q(r.cant)}</td><td>${r.unidad || ''}</td><td class="num">${r.base != null ? money(r.base) : ''}</td><td></td><td class="num">${money(r.amount)}</td><td></td></tr>`)}
+        ${l.deducciones.map((d) => html`<tr><td>${conceptoRecibo(l, d, true).concepto}</td><td class="num">${d.pct != null ? q(d.pct) : q(d.cant)}</td><td>${d.pct != null ? '%' : d.unidad || ''}</td><td class="num">${d.base != null ? money(d.base) : ''}</td><td></td><td></td><td class="num">${money(d.amount)}</td></tr>`)}
       </tbody>
       <tfoot><tr class="total"><td colspan="4">Totales</td><td class="num">${money(l.totals.remunerativo)}</td><td class="num">${money(l.totals.noRemunerativo)}</td><td class="num">${money(l.totals.descuentos)}</td></tr></tfoot>
     </table>

@@ -1,4 +1,5 @@
-import { ZONAS, vigenciaEscala } from '../domain/convenios/escalas.js';
+import { ZONAS, vigenciaEscala, esJornalizadoPorEscala } from '../domain/convenios/escalas.js';
+import { pctFicha } from '../core/pct.js';
 import { isValidISO, toUTC, parseISO, daysBetween } from '../core/dates.js';
 
 const COL = 'employees';
@@ -15,7 +16,7 @@ export const REGIMENES = [['dependencia', 'Relación de dependencia'], ['pasanti
 export const PERIODICIDADES = [['mensual', 'Mensual'], ['quincenal', 'Quincenal']];
 
 const digits = (v) => String(v ?? '').replace(/\D/g, '');
-const pct = (v) => { const n = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(n) ? n : 0; };
+const pct = pctFicha;
 
 /** Limpia y tipa los datos de un empleado (sin validar). */
 export function normalizeEmployee(d) {
@@ -61,6 +62,7 @@ export function normalizeEmployee(d) {
   };
   if ('foto' in d) e.foto = typeof d.foto === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(d.foto) && d.foto.length < 150_000 ? d.foto : '';
   if (e.regimen === 'pasantia') e.modalidad = 'mensual';
+  else if (e.modalidad !== 'hora' && esJornalizadoPorEscala(e)) e.modalidad = 'hora';   // convenio con escala = jornalizado
   if (e.modalidad === 'hora') {
     // Valor hora: el manual, o el de la escala del convenio. Sueldo = referencia mensual (200 hs) para liquidación final.
     if (!e.valorHoraManual) { const vg = vigenciaEscala(e.convenio, e.categoria, e.zona); if (vg) { e.valorHora = vg.valor; e.convenio = e.convenio || vg.convenio; } }

@@ -19,9 +19,19 @@ export const CONCEPTOS_CLASICO = {
   bono: [120, 'ADICIONAL REMUNERATIVO'], no_rem: [130, 'ADICIONAL NO REMUNERATIVO'], sac: [150, 'S.A.C.'], asignacion: [160, 'ASIGNACION ESTIMULO'],
   ap_jubilacion: [401, 'JUBILACION'], ap_pami: [402, 'LEY 23568 INSSJP'], ap_obraSocial: [403, 'OBRA SOCIAL'], ap_sindicato: [422, 'CUOTA SINDICAL'],
   os_adic: [405, 'OB SOC ADIC JORNALIZ'], sindicato: [422, 'SDTO UOCRA AFILIADOS'], solidario: [422, 'APORTE SOLIDARIO UOCRA'], seguro_vida: [425, 'SEGURO DE VIDA CONST'],
-  adelanto: [901, 'ADELANTO DE SUELDO'], otros: [902, 'OTROS DESCUENTOS'], ausencias: [910, 'AUSENCIAS INJUSTIFICADAS'], sin_goce: [911, 'LICENCIA SIN GOCE'], hs_desc: [912, 'HORAS NO TRABAJADAS'],
+  adelanto: [410, 'ANTICIPO'], otros: [902, 'OTROS DESCUENTOS'], ausencias: [910, 'AUSENCIAS INJUSTIFICADAS'], sin_goce: [911, 'LICENCIA SIN GOCE'], hs_desc: [912, 'HORAS NO TRABAJADAS'],
   redondeo: [980, 'REDONDEO'],
 };
+
+/**
+ * Código y rótulo de un concepto de una línea, EL MISMO en el recibo clásico y en el completo (así no se desfasan):
+ * 'SUELDO BASICO' si el básico es mensual; el rótulo de la tabla si el concepto está en ella; si no, el nombre original en mayúsculas.
+ */
+export function conceptoRecibo(l, it, esDeduccion = false) {
+  const t = CONCEPTOS_CLASICO[it.id];
+  const lab = it.id === 'basico' && l.snap.modalidad !== 'hora' ? 'SUELDO BASICO' : t ? t[1] : String(it.label ?? '').toUpperCase();
+  return { cod: t ? t[0] : esDeduccion ? 999 : 199, concepto: lab };
+}
 
 /** Formato numérico del recibo de empresa: 340,760.00 */
 export const fmtUS = (n) => (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -53,8 +63,8 @@ export function datosClasico(run, l, estudio = {}, userName = '', idx = 0) {
   const dep = run.deposito || {};
   const pagado = l.pago?.estado === 'pagado';
   const rows = [
-    ...l.rubros.map((r) => { const [cod, lab] = CONCEPTOS_CLASICO[r.id] || [199, up(r.label)]; return { cod, concepto: r.id === 'basico' && l.snap.modalidad !== 'hora' ? 'SUELDO BASICO' : lab, cant: r.id === 'basico' && r.hs != null ? fmtUS(r.hs) : ['hs', 'días'].includes(r.unidad) ? fmtUS(r.cant) : '', cd: r.tipo === 'remunerativo' ? fmtUS(r.amount) : '', sd: r.tipo === 'no_remunerativo' ? fmtUS(r.amount) : '', ded: '' }; }),
-    ...l.deducciones.map((d) => { const [cod, lab] = CONCEPTOS_CLASICO[d.id] || [999, up(d.label)]; return { cod, concepto: lab, cant: ['hs', 'días'].includes(d.unidad) ? fmtUS(d.cant) : '', cd: '', sd: '', ded: fmtUS(d.amount) }; }),
+    ...l.rubros.map((r) => { const { cod, concepto } = conceptoRecibo(l, r); return { cod, concepto, cant: r.id === 'basico' && r.hs != null ? fmtUS(r.hs) : ['hs', 'días'].includes(r.unidad) ? fmtUS(r.cant) : '', cd: r.tipo === 'remunerativo' ? fmtUS(r.amount) : '', sd: r.tipo === 'no_remunerativo' ? fmtUS(r.amount) : '', ded: '' }; }),
+    ...l.deducciones.map((d) => { const { cod, concepto } = conceptoRecibo(l, d, true); return { cod, concepto, cant: ['hs', 'días'].includes(d.unidad) ? fmtUS(d.cant) : '', cd: '', sd: '', ded: fmtUS(d.amount) }; }),
   ].sort((a, b) => a.cod - b.cod);
   const letras = montoEnLetras(l.totals.neto).replace(/^Son pesos\s*/i, '').replace(/\.$/, '');
   return {

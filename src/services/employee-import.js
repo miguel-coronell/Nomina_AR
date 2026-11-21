@@ -2,6 +2,7 @@
  * Importación de empleados desde Excel/CSV: plantilla, mapeo de columnas,
  * normalización de valores y validación fila por fila. Sin DOM (testeable).
  */
+import { pctFicha } from '../core/pct.js';
 import { ESCALAS, listaConvenios } from '../domain/convenios/escalas.js';
 import { CONVENIOS } from '../domain/legal/articles.js';
 import { CONTRATOS, JORNADAS, PERIODICIDADES, normalizeEmployee, validateEmployee } from './employees.service.js';
@@ -168,8 +169,8 @@ export function parseEmployeeRows(rawRows, existing = [], { updateExisting = tru
       sueldo: Number.isNaN(sueldo) ? 0 : sueldo,
       tipoContrato: tipo || 'indeterminado', jornada: jornada || 'completa', periodicidad: period || 'mensual',
       convenio: convenio || '', categoria: get('categoria'),
-      adicionalAntiguedadPct: parseNumber(get('adicionalAntiguedadPct')) || 0,
-      presentismoPct: parseNumber(get('presentismoPct')) || 0,
+      adicionalAntiguedadPct: pctFicha(parseNumber(get('adicionalAntiguedadPct')) || 0),
+      presentismoPct: pctFicha(parseNumber(get('presentismoPct')) || 0),   // «20%» en Excel llega como 0,2
       obraSocial: get('obraSocial'), art: get('art'), banco: get('banco'), cbu: get('cbu'), notas: get('notas'),
       regimen: norm(get('regimen')).startsWith('pas') ? 'pasantia' : 'dependencia',
       horasSemanales: horasDia > 0 ? horasDia * 5 : 0, sector: get('sector'),

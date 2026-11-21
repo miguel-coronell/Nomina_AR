@@ -10,7 +10,7 @@ import { calcAntiguedad } from '../../domain/liquidation/rules/antiguedad.js';
 import { costoLaboral, estiloGrafico } from '../../domain/payroll/costo.js';
 import { patronalesDe } from '../../domain/payroll/engine.js';
 import { APP } from '../../config/app.config.js';
-import { formatoRecibo } from '../../domain/payroll/clasico.js';
+import { formatoRecibo, conceptoRecibo } from '../../domain/payroll/clasico.js';
 import { buildPayslipsClasicoPDF } from './payslip-clasico.pdf.js';
 import { getFirmas } from '../firmas.service.js';
 import { C, PAGE, D, fs, fitK, t, m$, table, header, section, infoBox, netoBar, paragraph, signatures, tablaContribuciones, resumenCosto, footer } from './common.js';
@@ -60,9 +60,9 @@ function drawPayslip(doc, run, l, estudio, userName) {
 
   y = section(doc, y, 'REMUNERACIÓN BRUTA Y DEDUCCIONES', 3);
   const body = [
-    ...l.rubros.filter((r) => r.tipo === 'remunerativo').map((r) => [t(r.label), qty(r.cant), r.unidad || '', r.base != null ? m$(r.base) : '', m$(r.amount), '', '']),
-    ...l.rubros.filter((r) => r.tipo === 'no_remunerativo').map((r) => [t(r.label), qty(r.cant), r.unidad || '', r.base != null ? m$(r.base) : '', '', m$(r.amount), '']),
-    ...l.deducciones.map((d) => [t(d.label), d.pct != null ? qty(d.pct) : qty(d.cant), d.pct != null ? '%' : d.unidad || '', d.base != null ? m$(d.base) : '', '', '', m$(d.amount)]),
+    ...l.rubros.filter((r) => r.tipo === 'remunerativo').map((r) => [t(conceptoRecibo(l, r).concepto), qty(r.cant), r.unidad || '', r.base != null ? m$(r.base) : '', m$(r.amount), '', '']),
+    ...l.rubros.filter((r) => r.tipo === 'no_remunerativo').map((r) => [t(conceptoRecibo(l, r).concepto), qty(r.cant), r.unidad || '', r.base != null ? m$(r.base) : '', '', m$(r.amount), '']),
+    ...l.deducciones.map((d) => [t(conceptoRecibo(l, d, true).concepto), d.pct != null ? qty(d.pct) : qty(d.cant), d.pct != null ? '%' : d.unidad || '', d.base != null ? m$(d.base) : '', '', '', m$(d.amount)]),
   ];
   y = table(doc, {
     startY: y, head: [['Concepto', 'Cant.', 'Un.', 'Base de cálculo', 'Rem. c/ aportes', 'Rem. s/ aportes', 'Deducciones']], body,

@@ -9,7 +9,8 @@ import { factorTrabajado } from './periodos.js';
 import { contribucionesEmpleador } from './costo.js';
 import { jornadaPeriodo } from './jornada.js';
 import { baseMinimaSipa } from '../legal/params.js';
-import { basicoSerenoZonaA } from '../convenios/escalas.js';
+import { basicoSerenoZonaA, valorHoraEscala } from '../convenios/escalas.js';
+import { pctFicha } from '../../core/pct.js';
 
 export const NOVEDADES_VACIAS = { hsNormales: 0, he50: 0, he100: 0, ausenciasInjustificadas: 0, sinGoce: 0, feriadosTrabajados: 0, hsDescontar: 0, bono: 0, noRemunerativo: 0, adelanto: 0, otrosDescuentos: 0, mejorRemuneracion: 0, nota: '' };
 
@@ -28,7 +29,7 @@ export const horasPeriodo = (snap, p, ajustesFeriados) => jornadaPeriodo(snap, p
 
 export const snapshotEmpleado = (e) => ({
   sueldo: Number(e.sueldo) || 0, fechaIngreso: e.fechaIngreso, fechaEgreso: e.fechaEgreso || '',
-  adicionalAntiguedadPct: Number(e.adicionalAntiguedadPct) || 0, presentismoPct: Number(e.presentismoPct) || 0,
+  adicionalAntiguedadPct: pctFicha(e.adicionalAntiguedadPct), presentismoPct: pctFicha(e.presentismoPct),
   regimen: e.regimen === 'pasantia' ? 'pasantia' : 'dependencia', horasSemanales: Number(e.horasSemanales) || 0,
   divisorHora: divisorHoraDe(e.horasSemanales, e.divisorHora),
   modalidad: e.modalidad === 'hora' ? 'hora' : 'mensual', valorHora: Number(e.valorHora) || 0, afiliado: !!e.afiliado,
@@ -159,15 +160,22 @@ export function calcularLinea(snap, novedadesRaw, p, params) {
   if (porHora && baseAportes > 0) {
     // 405 Obra social adicional (Dto. 488/2011): piso = 2 × base mínima SIPA vigente, proporcional a los días corridos trabajados
     // en el mes. Solo si la remuneración con aportes es MENOR al piso, se descuenta el 3 % de la diferencia.
+    // Piso como en el recibo de la empresa: lo que gana un AYUDANTE por todas las horas hábiles del período (ej. 88 hs × $5.601 = $492.888).
+    // Si la remuneración con aportes es menor, se descuenta el 3 % de la diferencia. Sin valor de Ayudante en la escala, rige el piso SIPA.
+    const ayudante = valorHoraEscala(snap.convenio, 'Ayudante', snap.zona || 'A', p.vigencia || p.desde);
     const bs = baseMinimaSipa(p.desde);
-    if (!bs) warnings.push('No hay una base mínima SIPA cargada para este período: no se pudo evaluar la obra social adicional.');
+    if (ayudante && jor) {
+      const faltante = round2(ayudante * (jor.horasPeriodo + (jor.feriadosHoras || 0)) - baseAportes);
+      if (faltante > 0) ded('os_adic', 'Obra social adicional jornalero', faltante * 0.03, 3, { base: faltante });
+    } else if (!bs) warnings.push('No hay una base mínima SIPA cargada para este período: no se pudo evaluar la obra social adicional.');
     else {
       if (bs.desde.slice(0, 7) !== p.desde.slice(0, 7)) warnings.push(`Base mínima SIPA tomada de la vigencia ${bs.desde} (no hay una más reciente cargada).`);
       const pisoProp = round2(((bs.valor * 2) / 30) * diasTrabajadosMes(snap, p));
       const faltante = round2(pisoProp - baseAportes);
       if (faltante > 0) ded('os_adic', 'Obra social adicional jornalero', faltante * 0.03, 3, { base: faltante });
     }
-    if (snap.afiliado) ded('sindicato', 'Cuota sindical afiliados', baseAportes * ((Number(j.sindicatoPct) || 0) / 100), Number(j.sindicatoPct) || 0);
+    // 422 SDTO UOCRA AFILIADOS: a todo el personal de la construcción si «sindicatoATodos» (por defecto, como los recibos de la empresa); si no, solo a los afiliados.
+    if (snap.afiliado || (j.sindicatoATodos !== false && esConstruccion(snap))) ded('sindicato', 'SDTO UOCRA AFILIADOS', baseAportes * ((Number(j.sindicatoPct) || 0) / 100), Number(j.sindicatoPct) || 0);
     else ded('solidario', 'Aporte solidario (no afiliados)', baseAportes * ((Number(j.solidarioPct) || 0) / 100), Number(j.solidarioPct) || 0);
     // 425 Seguro de vida colectivo (art. 108 CCT 76/75): % del básico mensual Sereno Zona A, en la 2.ª quincena (o en el mes completo).
     if (!esConstruccion(snap)) warnings.push('Convenio distinto de Construcción: no se calcula el seguro de vida de la UOCRA ni los aportes patronales de la construcción. Los % de cuota sindical / aporte solidario salen de Configuración: verificá que correspondan a tu convenio.');

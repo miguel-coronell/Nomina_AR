@@ -152,19 +152,20 @@ test('personal por hora (UOCRA): valor hora de la escala × horas trabajadas, co
   assert.equal(l.deducciones.find((d) => d.id === 'ap_jubilacion').amount, 44_980.32);
   assert.equal(l.deducciones.find((d) => d.id === 'sindicato').amount, 10_222.8);
   assert.equal(l.totals.neto % 1, 0);                      // el redondeo deja el neto en pesos enteros
-  // 408.912 supera el piso de obra social (2 × 146.759,98 = 293.519,96): no hay obra social adicional
-  assert.equal(l.deducciones.find((d) => d.id === 'os_adic'), undefined);
+  // 405: piso = 88 hs × $5.601 (Ayudante) = 492.888; 408.912 es menor → 3 % de la diferencia (83.976), igual que el recibo real
+  assert.equal(l.deducciones.find((d) => d.id === 'os_adic').amount, 2_519.28);
   assert.equal(l.deducciones.find((d) => d.id === 'seguro_vida').amount, 20_349.7);   // 2 % de 1.017.485 (Sereno Zona A)
-  assert.equal(l.totals.descuentos, 100_087.54);
-  assert.equal(l.rubros.find((r) => r.id === 'redondeo').amount, 0.54);
-  assert.equal(l.totals.neto, 308_825);
+  assert.equal(l.totals.descuentos, 102_606.82);
+  assert.equal(l.rubros.find((r) => r.id === 'redondeo').amount, 0.82);
+  assert.equal(l.totals.neto, 306_306);
 });
 test('jornalero: obra social adicional solo completa la base mínima; no afiliado paga aporte solidario', () => {
   const per = describirPeriodo({ tipo: 'quincenal', year: 2026, month: 10, quincena: 2 });
   const e = emp({ id: 'h2', modalidad: 'hora', convenio: 'construccion', categoria: 'Ayudante', zona: 'A', sueldo: 0, presentismoPct: 0, adicionalAntiguedadPct: 0, afiliado: false, periodicidad: 'quincenal', fechaIngreso: '2026-01-01' });
-  const l = nuevaLinea(e, per, paramsDe(S), { hsNormales: 10 });      // 10 × 5.601 = 56.010 (< base mínima)
+  const S2 = { ...S, jornal: { ...S.jornal, sindicatoATodos: false } };   // solo afiliados pagan el sindicato; el resto, aporte solidario
+  const l = nuevaLinea(e, per, paramsDe(S2), { hsNormales: 10 });      // 10 × 5.601 = 56.010 (< piso de 88 hs de Ayudante)
   const os = l.deducciones.find((d) => d.id === 'os_adic');
-  assert.equal(os.amount, 7_125.3);   // 3 % × (293.519,96 − 56.010), mes completo (30 días)
+  assert.equal(os.amount, 13_106.34);   // 3 % × (492.888 − 56.010)
   assert.equal(l.deducciones.find((d) => d.id === 'sindicato'), undefined);
   assert.equal(l.deducciones.find((d) => d.id === 'solidario').amount, 1_120.2); // 2 % de 56.010
 });
@@ -199,18 +200,19 @@ test('jornalero que ingresa el 21/10: 8 días × 8 hs = 64 hs; liquidación con 
   const l = nuevaLinea(e, per, paramsDe(S), { hsNormales: 64 });
   assert.equal(l.warnings.some((w) => /Cargaste/.test(w)), false);   // 64 coincide con el cálculo automático: sin aviso de diferencia
   assert.equal(l.totals.remunerativo, 467_328);                  // 64 × 6.085 × 1,20
-  // Ingreso el 21/10 → 11 días del mes: piso proporcional 293.519,96 / 30 × 11 = 107.623,99 < 467.328 → sin obra social adicional
-  assert.equal(l.deducciones.find((d) => d.id === 'os_adic'), undefined);
-  assert.equal(l.totals.descuentos, 111_478.66);
-  assert.equal(l.totals.neto, 355_850);
+  // Piso 88 hs × $5.601 = 492.888; 467.328 es menor → 3 % de 25.560 = 766,80
+  assert.equal(l.deducciones.find((d) => d.id === 'os_adic').amount, 766.8);
+  assert.equal(l.totals.descuentos, 112_245.46);
+  assert.equal(l.totals.neto, 355_083);
   assert.ok(nuevaLinea(e, per, paramsDe(S), { hsNormales: 56 }).warnings.some((w) => /Cargaste 56 hs; el período tiene 64 hs/.test(w)));
 });
 
-test('obra social adicional: piso proporcional por días trabajados y solo si la remuneración es menor', () => {
+test('obra social adicional: piso = Ayudante × horas hábiles del período y solo si la remuneración es menor', () => {
   const per = describirPeriodo({ tipo: 'quincenal', year: 2026, month: 10, quincena: 2 });
   const e = emp({ id: 'h5', modalidad: 'hora', convenio: 'construccion', categoria: 'Ayudante', zona: 'A', sueldo: 0, presentismoPct: 0, adicionalAntiguedadPct: 0, afiliado: true, periodicidad: 'quincenal', fechaIngreso: '2026-10-21' });
-  const l = nuevaLinea(e, per, paramsDe(S), { hsNormales: 15 });    // 15 × 5.601 = 84.015 < 107.623,99
-  assert.equal(l.deducciones.find((d) => d.id === 'os_adic').amount, Math.round((107_623.99 - 84_015) * 3) / 100);
+  const l = nuevaLinea(e, per, paramsDe(S), { hsNormales: 15 });    // 15 × 5.601 = 84.015 < 492.888
+  assert.equal(l.deducciones.find((d) => d.id === 'os_adic').amount, 12_266.19);   // 3 % × (492.888 − 84.015)
+  assert.equal(nuevaLinea(e, per, paramsDe(S), { hsNormales: 88 }).deducciones.find((d) => d.id === 'os_adic'), undefined);   // 88 × 5.601 alcanza el piso
   assert.equal(diasTrabajadosMes({ fechaIngreso: '2026-10-21', fechaEgreso: '' }, per), 11);
   assert.equal(diasTrabajadosMes({ fechaIngreso: '2026-01-01', fechaEgreso: '2026-10-10' }, per), 10);
   assert.equal(diasTrabajadosMes({ fechaIngreso: '2026-01-01', fechaEgreso: '' }, per), 30);   // mes de 31 días, tope 30
@@ -418,4 +420,94 @@ test('nómina con vigencia elegida: usa esa escala aunque el período sea otro',
   assert.equal(auto.lines[0].snap.valorHora, 6188);
   assert.equal(fija.lines[0].snap.valorHora, 6085);
   assert.equal(fija.vigencia, '2026-10-01');
+});
+
+// ---- Recibos reales de la empresa (2.ª quincena de octubre 2026): la app tiene que dar los mismos números ----
+const jorn = (o = {}) => emp({ id: 'r', periodicidad: 'quincenal', adicionalAntiguedadPct: 0, afiliado: true, zona: 'A', fechaIngreso: '2024-01-01', presentismoPct: 20, ...o });
+const Q2OCT = describirPeriodo({ tipo: 'quincenal', year: 2026, month: 10, quincena: 2 });
+
+test('recibo real Alos (Oficial): ficha importada como mensual, categoría «3 OFICIAL» y presentismo 0,2 de Excel', async () => {
+  const { datosClasico } = await import('../src/domain/payroll/clasico.js');
+  // Ficha como llega de una planilla: modalidad mensual, sin convenio, «20 %» → 0,2
+  const l = nuevaLinea(jorn({ modalidad: 'mensual', sueldo: 1_158_960, convenio: '', categoria: '3 OFICIAL', presentismoPct: 0.2 }), Q2OCT, paramsDe(S));
+  assert.equal(l.snap.modalidad, 'hora');
+  assert.equal(l.snap.presentismoPct, 20);
+  assert.deepEqual([get(l, 'basico').cant, get(l, 'basico').base, get(l, 'basico').amount], [88, 6585, 579_480]);
+  assert.equal(get(l, 'presentismo').amount, 115_896);
+  const ded = (id) => l.deducciones.find((d) => d.id === id).amount;
+  assert.deepEqual([ded('ap_jubilacion'), ded('ap_pami'), ded('ap_obraSocial'), ded('sindicato'), ded('seguro_vida')], [76_491.36, 20_861.28, 20_861.28, 17_384.4, 20_349.7]);
+  assert.equal(get(l, 'redondeo').amount, 0.02);
+  assert.equal(l.totals.descuentos, 155_948.02);
+  assert.equal(l.totals.neto, 539_428);
+  const d = datosClasico({ ...Q2OCT, deposito: {} }, l);
+  assert.equal(d.basico, '6,585.00');
+  assert.deepEqual(d.rows.map((r) => `${r.cod} ${r.concepto}`), ['101 BASICO HS. NORMALES', '117 PRESENTISMO', '401 JUBILACION', '402 LEY 23568 INSSJP', '403 OBRA SOCIAL', '422 SDTO UOCRA AFILIADOS', '425 SEGURO DE VIDA CONST', '980 REDONDEO']);
+});
+
+test('recibo real Carrizo: 1 ausencia = 80 hs, pierde presentismo, anticipo de $89.500', async () => {
+  const { datosClasico } = await import('../src/domain/payroll/clasico.js');
+  const l = nuevaLinea(jorn({ modalidad: 'mensual', sueldo: 1_158_960, convenio: 'construccion', categoria: '3 OFICIAL' }), Q2OCT, paramsDe(S), { ausenciasInjustificadas: 1, adelanto: 89_500 });
+  assert.deepEqual([get(l, 'basico').cant, get(l, 'basico').amount], [80, 526_800]);
+  assert.equal(get(l, 'presentismo'), undefined);
+  const ded = (id) => l.deducciones.find((d) => d.id === id)?.amount;
+  assert.deepEqual([ded('ap_jubilacion'), ded('ap_pami'), ded('sindicato'), ded('seguro_vida'), ded('adelanto')], [57_948, 15_804, 13_170, 20_349.7, 89_500]);
+  assert.equal(ded('ausencias'), undefined);                      // la ausencia resta horas; no es un descuento aparte
+  assert.equal(l.totals.descuentos, 212_575.7);
+  assert.equal(get(l, 'redondeo').amount, 0.7);
+  assert.equal(l.totals.neto, 314_225);
+  const filas = datosClasico({ ...Q2OCT, deposito: {} }, l).rows.map((r) => `${r.cod} ${r.concepto}`);
+  assert.ok(filas.includes('410 ANTICIPO') && filas.includes('101 BASICO HS. NORMALES'));
+});
+
+test('recibo real Peña (Ayudante): 88 hs × $5.601 y neto $455.781', () => {
+  const l = nuevaLinea(jorn({ modalidad: 'mensual', sueldo: 900_000, categoria: '1 AYUDANTE', fechaIngreso: '2025-01-14' }), Q2OCT, paramsDe(S));
+  assert.deepEqual([get(l, 'basico').amount, get(l, 'presentismo').amount, l.totals.remunerativo], [492_888, 98_577.6, 591_465.6]);
+  assert.equal(l.deducciones.find((d) => d.id === 'ap_jubilacion').amount, 65_061.22);
+  assert.equal(l.deducciones.find((d) => d.id === 'os_adic'), undefined);   // 591.465,60 supera el piso de 492.888
+  assert.equal(get(l, 'redondeo').amount, 0.9);
+  assert.equal(l.totals.neto, 455_781);
+});
+
+test('un convenio sin escala (Comercio) o una categoría fuera de la escala sigue como mensualizado', () => {
+  const a = nuevaLinea(emp({ convenio: 'comercio', categoria: 'Oficial', periodicidad: 'quincenal' }), Q2OCT, paramsDe(S));
+  assert.equal(a.snap.modalidad, 'mensual');
+  const b = nuevaLinea(emp({ convenio: 'construccion', categoria: 'Sereno', periodicidad: 'quincenal' }), Q2OCT, paramsDe(S));
+  assert.equal(b.snap.modalidad, 'mensual');
+});
+
+test('el recibo completo usa los mismos rótulos de concepto que el clásico', async () => {
+  const { conceptoRecibo, CONCEPTOS_CLASICO } = await import('../src/domain/payroll/clasico.js');
+  const l = nuevaLinea(jorn({ modalidad: 'hora', convenio: 'construccion', categoria: 'Oficial' }), Q2OCT, paramsDe(S), { adelanto: 1000 });
+  [...l.rubros, ...l.deducciones].forEach((it) => assert.equal(conceptoRecibo(l, it).concepto, CONCEPTOS_CLASICO[it.id][1]));
+});
+
+test('pctFicha: «20 %» de Excel (0,2) se toma como 20; 8,33 y 20 quedan igual', async () => {
+  const { pctFicha } = await import('../src/core/pct.js');
+  assert.deepEqual([pctFicha(0.2), pctFicha(0.0833), pctFicha(20), pctFicha('8,33'), pctFicha('20%'), pctFicha(1), pctFicha(0), pctFicha('')], [20, 8.33, 20, 8.33, 20, 1, 0, 0]);
+});
+
+test('los 8 recibos originales de la 2.ª quincena de octubre 2026: concepto por concepto y neto', async () => {
+  const { datosClasico } = await import('../src/domain/payroll/clasico.js');
+  // [legajo, categoría de la ficha, novedades, ded. esperadas por código, rem. c/d, redondeo, neto]
+  const OFICIAL = { 401: 76_491.36, 402: 20_861.28, 403: 20_861.28, 422: 17_384.4, 425: 20_349.7 };
+  const casos = [
+    ['Alos Miguel', '3 OFICIAL', {}, OFICIAL, 695_376, 0.02, 539_428],
+    ['Ferreyra', '3 OFICIAL', {}, OFICIAL, 695_376, 0.02, 539_428],
+    ['Britez', '3 OFICIAL', { adelanto: 21_500 }, { ...OFICIAL, 410: 21_500 }, 695_376, 0.02, 517_928],
+    ['Carrizo', '3 OFICIAL', { ausenciasInjustificadas: 1, adelanto: 89_500 }, { 401: 57_948, 402: 15_804, 403: 15_804, 410: 89_500, 422: 13_170, 425: 20_349.7 }, 526_800, 0.7, 314_225],
+    ['Ontivero', '2 MEDIO OFICIAL', { adelanto: 18_000 }, { 401: 70_683.36, 402: 19_277.28, 403: 19_277.28, 410: 18_000, 422: 16_064.4, 425: 20_349.7 }, 642_576, 0.02, 478_924],
+    ['Peña', '1 AYUDANTE', {}, { 401: 65_061.22, 402: 17_743.97, 403: 17_743.97, 422: 14_786.64, 425: 20_349.7 }, 591_465.6, 0.9, 455_781],
+    ['Alos Mauricio', '1 AYUDANTE', { adelanto: 18_000 }, { 401: 65_061.22, 402: 17_743.97, 403: 17_743.97, 410: 18_000, 422: 14_786.64, 425: 20_349.7 }, 591_465.6, 0.9, 437_781],
+  ];
+  for (const [nombre, categoria, nov, esperadas, remCD, redondeo, neto] of casos) {
+    // La ficha como suele llegar de una planilla: mensual, sin sindicato tildado, presentismo «20 %» = 0,2
+    const l = nuevaLinea(jorn({ nombre, modalidad: 'mensual', sueldo: 1_000_000, categoria, afiliado: false, presentismoPct: 0.2 }), Q2OCT, paramsDe(S), nov);
+    const d = datosClasico({ ...Q2OCT, deposito: {} }, l);
+    const porCod = Object.fromEntries(d.rows.filter((r) => r.ded).map((r) => [r.cod, Number(r.ded.replace(/,/g, ''))]));
+    assert.deepEqual(porCod, esperadas, nombre);
+    assert.equal(d.rows.find((r) => r.cod === 422).concepto, 'SDTO UOCRA AFILIADOS', nombre);
+    assert.equal(l.totals.remunerativo, remCD, nombre);
+    assert.equal(get(l, 'redondeo').amount, redondeo, nombre);
+    assert.equal(l.totals.neto, neto, nombre);
+  }
 });

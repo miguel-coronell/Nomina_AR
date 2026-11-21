@@ -71,7 +71,7 @@ export const categoriasDe = (id) => ESCALAS[id]?.categorias || [];
 export const vigenciasDisponibles = () => [...new Set(Object.values(ESCALAS).flatMap((e) => (e.vigencias || []).map((v) => v.desde)))].sort((a, b) => b.localeCompare(a));
 
 /** Normaliza para comparar: minúsculas, sin tildes, sin signos y con un solo espacio. */
-export const normCat = (t) => String(t ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+export const normCat = (t) => String(t ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/^\d+ (?=[a-z])/, '');   // «3 OFICIAL», «03 - Oficial» → «oficial»
 
 /**
  * Convenio al que corresponde una categoría. Si la ficha no tiene convenio, se deduce de la categoría
@@ -84,6 +84,17 @@ export function resolverConvenio(convenio, categoria) {
   const hits = Object.entries(ESCALAS).filter(([, e]) => (e.categorias || []).some((c) => normCat(c) === n)).map(([id]) => id);
   // Si está en varios, una ficha sin convenio sigue tratándose como Construcción (igual que el cálculo de jornaleros hasta ahora).
   return hits.length === 1 ? hits[0] : hits.includes('construccion') ? 'construccion' : null;
+}
+
+/**
+ * ¿La ficha es de personal jornalizado (pago por hora) según su convenio y categoría? Sí cuando el convenio (el de la ficha o, si está vacío, el que
+ * resulta de la categoría) tiene escala y la categoría figura en ella. Una ficha con otro convenio (ej. Comercio) o con una categoría que no está
+ * en la escala (ej. Sereno) sigue como mensualizada.
+ */
+export function esJornalizadoPorEscala(e) {
+  if (!e || e.regimen === 'pasantia') return false;
+  const id = resolverConvenio(e.convenio, e.categoria), n = normCat(e.categoria);
+  return !!(id && n && (ESCALAS[id]?.categorias || []).some((c) => normCat(c) === n));
 }
 
 /** Valor hora y desde cuándo rige: { valor, desde, convenio } o null si no hay dato para esa fecha. */

@@ -1,7 +1,7 @@
 /** Armado y recálculo de una corrida de nómina (todas las líneas de un período). */
 import { round2 } from '../../core/format.js';
 import { describirPeriodo, elegible, incluirEn } from './periodos.js';
-import { vigenciaEscala } from '../convenios/escalas.js';
+import { vigenciaEscala, esJornalizadoPorEscala } from '../convenios/escalas.js';
 import { calcularLinea, snapshotEmpleado, normalizarNovedades, NOVEDADES_VACIAS } from './engine.js';
 
 export const paramsDe = (settings) => ({
@@ -12,7 +12,9 @@ export const paramsDe = (settings) => ({
 });
 
 /** Para personal por hora con valor automático: toma la escala del convenio vigente en el período. */
-export const conValorHora = (emp, periodo) => {
+export const conValorHora = (emp0, periodo) => {
+  // Personal de un convenio con escala (UOCRA, UOM…) se liquida por hora aunque la ficha haya quedado como «mensual» (ej. importada).
+  const emp = emp0.modalidad !== 'hora' && esJornalizadoPorEscala(emp0) ? { ...emp0, modalidad: 'hora' } : emp0;
   if (emp.modalidad !== 'hora' || emp.valorHoraManual) return emp;
   const v = vigenciaEscala(emp.convenio, emp.categoria, emp.zona || 'A', periodo.vigencia || periodo.desde);   // vigencia elegida en la nómina; si no, la del inicio del período
   return v ? { ...emp, valorHora: v.valor, convenio: emp.convenio || v.convenio } : emp;   // ficha sin convenio: se deduce de la categoría

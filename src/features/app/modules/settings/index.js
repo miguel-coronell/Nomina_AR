@@ -71,7 +71,8 @@ export default {
               ${numField('Ley 23.568 / INSSJP - PAMI (%)', 'pami', s.aportes.pami)}
               ${numField('Obra social (%)', 'obraSocial', s.aportes.obraSocial)}
               ${numField('Cuota sindical (%)', 'sindicato', s.aportes.sindicato)}
-              ${numField('Jornaleros: cuota sindical afiliados (%)', 'j_sindicatoPct', s.jornal.sindicatoPct)}
+              ${numField('Jornaleros: SDTO UOCRA AFILIADOS (%)', 'j_sindicatoPct', s.jornal.sindicatoPct)}
+              <label class="check" style="grid-column:1/-1"><input type="checkbox" name="j_sindicatoATodos" ${s.jornal.sindicatoATodos !== false ? 'checked' : ''}><span>Descontar el sindicato a todo el personal jornalizado de la construcción<small>Como en los recibos de la empresa (todos llevan «SDTO UOCRA AFILIADOS»). Si lo destildás, solo se descuenta a quienes tengan «Afiliado» en la ficha y los demás pagan el aporte solidario.</small></span></label>
               ${numField('Jornaleros: aporte solidario no afiliados (%)', 'j_solidarioPct', s.jornal.solidarioPct)}
               ${numField('Jornaleros: seguro de vida (% del básico Sereno Zona A)', 'j_seguroVidaPct', s.jornal.seguroVidaPct, 'Se descuenta en la 2.ª quincena (art. 108 CCT 76/75).')}
               ${numField('Divisor del día de feriado trabajado', 'divisorFeriado', s.divisorFeriado, 'Día adicional = remuneración mensual / divisor (25 para mensualizados). Verificá tu convenio.')}
@@ -151,7 +152,7 @@ export default {
         ...ctx.state.settings,
         aportes: { jubilacion: pct(d.jubilacion), pami: pct(d.pami), obraSocial: pct(d.obraSocial), sindicato: pct(d.sindicato) },
         patronales: Object.fromEntries(['sipa', 'pami', 'asignaciones', 'fne', 'obraSocial', 'art', 'sindical', 'uocra', 'fondoCese', 'fondoCese2', 'ieric', 'camaras', 'otros'].map((k) => [k, pct(d['p_' + k])])),
-        jornal: { sindicatoPct: pct(d.j_sindicatoPct), solidarioPct: pct(d.j_solidarioPct), seguroVidaPct: pct(d.j_seguroVidaPct) },
+        jornal: { sindicatoPct: pct(d.j_sindicatoPct), solidarioPct: pct(d.j_solidarioPct), seguroVidaPct: pct(d.j_seguroVidaPct), sindicatoATodos: !!d.j_sindicatoATodos },
         divisorFeriado: Math.max(1, num(d.divisorFeriado) || 25),
         topeRemunerativo: Math.max(0, num(d.topeRemunerativo)),
         periodoPruebaMeses: Math.min(24, Math.max(0, Math.round(num(d.periodoPruebaMeses)))),
